@@ -1,4 +1,5 @@
 include("shared.lua")
+include("ui/client/cl_ui.lua")
 
 function ENT:Draw()
     self:DrawModel()
@@ -10,6 +11,6 @@ net.Receive("Bandnpc", function()
         ply:ChatPrint("Подождите...")
         return
     end
-    ply:ChatPrint("Вас зовут: " .. ply:Nick())  --- Сюда менюшку надо будет добавить
+    band_ui() --- функция из ui/client/cl_ui.lua
     timer.Create("Cdnpc", 5, 1, function() end)
 end)
