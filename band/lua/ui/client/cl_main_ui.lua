@@ -33,6 +33,12 @@ function mainmenu()
 
         draw.SimpleText(text, "ui.font0", w * 0.5, 10, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
     end
+    general_menu()
+    members_menu()
+    settings_menu()
+    gframe:Remove()
+    mframe:Remove()
+    sframe:Remove()
 
     local closebtn = vgui.Create('DButton', frame)
     closebtn:SetSize(scrw*0.020, scrh*0.020)
@@ -40,6 +46,7 @@ function mainmenu()
     closebtn:SetPos(frame:GetWide() - 30, 10)
     closebtn.DoClick = function()
         frame:Close()
+        gframe:Remove()
     end
     closebtn.Paint = function(self, w, h)
         surface.SetMaterial(close)
@@ -69,10 +76,21 @@ function mainmenu()
         draw.SimpleText('Основное', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
     general.DoClick = function()
-        general_menu()
+        if (gframe:IsVisible() == false) then
+            general_menu()
+        end
+        if (mframe:IsVisible() == true) then
+            mframe:Remove()
+        end
+        if (gframe:IsVisible() == true) then
+            gframe:Remove()
+        end
+        if (sframe:IsVisible() == true) then
+            sframe:Remove()
+        end
     end
 
-    local playerlist = vgui.Create("DButton", uppanel)
+    playerlist = vgui.Create("DButton", uppanel)
     playerlist:SetSize(scrw*0.08, scrh*0.04)
     playerlist:SetText("")
     playerlist:SetPos(frame:GetWide() - 970, 5)
@@ -86,10 +104,21 @@ function mainmenu()
         draw.SimpleText('Участники', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
     playerlist.DoClick = function()
-        -- пока нечего
+        if (mframe:IsVisible() == false) then
+            members_menu()
+        end
+        if (mframe:IsVisible() == true) then
+            return
+        end
+        if (gframe:IsVisible() == true) then
+            gframe:Remove()
+        end
+        if (sframe:IsVisible() == true) then
+            sframe:Remove()
+        end
     end
 
-    local settings = vgui.Create("DButton", uppanel)
+    settings = vgui.Create("DButton", uppanel)
     settings:SetSize(scrw*0.08, scrh*0.04)
     settings:SetText("")
     settings:SetPos(frame:GetWide() - 800, 5)
@@ -103,17 +132,53 @@ function mainmenu()
         draw.SimpleText('Настройки', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
     settings.DoClick = function()
-        -- пока нечего
+        if (sframe:IsVisible() == false) then
+            settings_menu()
+        end
+        if (mframe:IsVisible() == true) then
+            mframe:Remove()
+        end
+        if (gframe:IsVisible() == true) then
+            gframe:Remove()
+        end
+        if (sframe:IsVisible() == true) then
+            return
+        end
     end
-
+    general_menu()
 end
 
 function general_menu()
-    local gframe = vgui.Create("DFrame")
-    gframe:SetSize(scrw*0.5, scrh*0.5)
+    gframe = vgui.Create("DPanel")
+    gframe:SetSize(scrw*0.59, scrh*0.59)
+    gframe:SetPos(0, scrh*0.255)
     gframe:CenterHorizontal()
-    gframe:CenterVertical()
     gframe:MakePopup()
+    gframe.Paint = function(self, w, h)
+        draw.RoundedBox(8, 0, 0, w, h, f2)
+    end
+end
+
+function members_menu()
+    mframe = vgui.Create("DPanel")
+    mframe:SetSize(scrw*0.59, scrh*0.59)
+    mframe:SetPos(0, scrh*0.255)
+    mframe:CenterHorizontal()
+    mframe:MakePopup()
+    mframe.Paint = function(self, w, h)
+        draw.RoundedBox(8, 0, 0, w, h, f2)
+    end
+end
+
+function settings_menu()
+    sframe = vgui.Create("DPanel")
+    sframe:SetSize(scrw*0.59, scrh*0.59)
+    sframe:SetPos(0, scrh*0.255)
+    sframe:CenterHorizontal()
+    sframe:MakePopup()
+    sframe.Paint = function(self, w, h)
+        draw.RoundedBox(8, 0, 0, w, h, f2)
+    end
 end
 
 concommand.Add('mainmenu', mainmenu)

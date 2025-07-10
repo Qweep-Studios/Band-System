@@ -105,7 +105,7 @@ function buy_band_ui()
             surface.SetMaterial(gradient)
             surface.SetDrawColor(gradredbtn)
             surface.DrawTexturedRect(0, 0, w, h)
-            draw.SimpleText('Купить за 100000', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+            draw.SimpleText('Купить за 100000$', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         end
     end
 
