@@ -91,26 +91,86 @@ function buy_band_ui()
     selectbtn.Paint = function(self, w, h)
         local inputText = textentry:GetText()
         local gradient = Material("gui/center_gradient")
+        local money = LocalPlayer():getDarkRPVar("money")
 
-        if inputText == "" then
-            draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and redbtn_dark or redbtn)
-            surface.SetMaterial(gradient)
-            surface.SetDrawColor(gradredbtn)
-            surface.DrawTexturedRect(0, 0, w, h)
-            draw.SimpleText('Купить', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-        else
+        if #inputText > 3 and #inputText < 13 and (money >= 100000) then
             draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and greenbtn_dark or greenbtn)
             surface.SetMaterial(gradient)
             surface.SetDrawColor(gradgreenbtn)
             surface.DrawTexturedRect(0, 0, w, h)
-            draw.SimpleText('Купить', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+            draw.SimpleText('Купить за 100000', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        else
+            draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and redbtn_dark or redbtn)
+            surface.SetMaterial(gradient)
+            surface.SetDrawColor(gradredbtn)
+            surface.DrawTexturedRect(0, 0, w, h)
+            draw.SimpleText('Купить за 100000', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         end
     end
 
     selectbtn.DoClick = function()
+        local inputText = textentry:GetText()
         local money = LocalPlayer():getDarkRPVar("money") --- inputText название банды от пользовтеля
-        if (money >= 10000) then
-            
+        if (money < 100000) then
+            notification.AddLegacy("У вас не хватет денег!", NOTIFY_GENERIC, 2)
+        end
+        if #inputText < 3 then
+            notification.AddLegacy("У вас слишком маленькое название!", NOTIFY_GENERIC, 2)
+        end
+        if #inputText > 13 then
+            notification.AddLegacy("У вас слишком большое название!", NOTIFY_GENERIC, 2)
+        end
+        if (money >= 100000) and #inputText > 3 and #inputText < 13 then
+            frame:Remove()
+
+            local yesorno = vgui.Create('DFrame')
+            yesorno:SetSize(scrw*0.2, scrh*0.2)
+            yesorno:SetTitle('')
+            yesorno:Center()
+            yesorno:MakePopup()
+            yesorno:ShowCloseButton(false)
+            yesorno:SetDraggable(false)
+            yesorno.Paint = function(self, w, h)
+                draw.RoundedBox(8, 0, 0, w, h, f1)
+                draw.RoundedBoxEx(8, 0, 0, w, 30, f2, true, true, false, false)
+
+                draw.SimpleText('Вы уверены что хотите это купить за 100000?', 'ui.font0', w * 0.5, h * 0.35, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+            end
+            local yes = vgui.Create('DButton', yesorno)
+            yes:SetSize(scrw*0.07, scrh*0.030)
+            yes:Center()
+            yes:SetPos(yes:GetX() - 90, yes:GetY() + 50)
+            yes:SetText("")
+            yes.Paint = function(self, w, h)
+                local gradient = Material("gui/center_gradient")
+
+                draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and greenbtn_dark or greenbtn)
+                surface.SetMaterial(gradient)
+                surface.SetDrawColor(gradgreenbtn)
+                surface.DrawTexturedRect(0, 0, w, h)
+                draw.SimpleText('Купить', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+            end
+            yes.DoClick = function()
+                yesorno:Remove()
+            end
+
+            local no = vgui.Create('DButton', yesorno)
+            no:SetSize(scrw*0.07, scrh*0.030)
+            no:Center()
+            no:SetPos(no:GetX() + 90, no:GetY() + 50)
+            no:SetText("")
+            no.Paint = function(self, w, h)
+                local gradient = Material("gui/center_gradient")
+
+                draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and redbtn_dark or redbtn)
+                surface.SetMaterial(gradient)
+                surface.SetDrawColor(gradredbtn)
+                surface.DrawTexturedRect(0, 0, w, h)
+                draw.SimpleText('Отмена', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+            end
+            no.DoClick = function()
+                yesorno:Remove()
+            end
         end
     end
 end
