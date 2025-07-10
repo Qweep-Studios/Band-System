@@ -1,5 +1,6 @@
 scrh = ScrH()
 scrw = ScrW()
+local band_price = 100000 --- Позже заменить на конфиг
 
 surface.CreateFont('ui.font0', {
     font = 'Overpass Bold',
@@ -152,6 +153,9 @@ function buy_band_ui()
             end
             yes.DoClick = function()
                 yesorno:Remove()
+                net.Start("MoneyRemove")
+                net.WriteInt(band_price, 18)
+                net.SendToServer()
             end
 
             local no = vgui.Create('DButton', yesorno)

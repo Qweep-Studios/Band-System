@@ -1,5 +1,6 @@
 include("shared.lua")
 include("ui/client/cl_ui.lua")
+include("ui/vgui/font.lua")
 
 function ENT:Draw()
     self:DrawModel()
