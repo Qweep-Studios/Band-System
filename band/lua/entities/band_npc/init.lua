@@ -1,6 +1,7 @@
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")
 AddCSLuaFile("ui/client/cl_ui.lua")
+AddCSLuaFile("ui/client/cl_main_ui.lua")
 include("shared.lua")
 util.AddNetworkString("Bandnpc")
 
