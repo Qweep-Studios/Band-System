@@ -11,6 +11,6 @@ net.Receive("Bandnpc", function()
         ply:ChatPrint("Подождите...")
         return
     end
-    band_ui() --- функция из ui/client/cl_ui.lua
-    timer.Create("Cdnpc", 5, 1, function() end)
+    buy_band_ui() --- функция из ui/client/cl_ui.lua
+    timer.Create("Cdnpc", 1, 1, function() end)
 end)
