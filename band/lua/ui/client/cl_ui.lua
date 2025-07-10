@@ -52,7 +52,7 @@ function buy_band_ui()
     local closebtn = vgui.Create('DButton', frame)
     closebtn:SetSize(scrw*0.020, scrh*0.020)
     closebtn:SetText("")
-    closebtn:SetPos(frame:GetWide() - 40, 10)
+    closebtn:SetPos(frame:GetWide() - 30, 10)
     closebtn.DoClick = function()
         frame:Close()
     end
