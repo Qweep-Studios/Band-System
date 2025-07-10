@@ -70,7 +70,7 @@ function buy_band_ui()
     textentry.Paint = function(self, w, h)
         draw.RoundedBox(6, 0, 0, w, h, te1)
 
-        local inputText = textentry:GetText()
+        inputText = textentry:GetText()
 
         if inputText == "" then
             draw.SimpleText('Введите сюда название...', 'ui.font1', w * 0.5, h * 0.5, cb2, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
@@ -104,6 +104,13 @@ function buy_band_ui()
             surface.SetDrawColor(gradgreenbtn)
             surface.DrawTexturedRect(0, 0, w, h)
             draw.SimpleText('Купить', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        end
+    end
+
+    selectbtn.DoClick = function()
+        local money = LocalPlayer():getDarkRPVar("money") --- inputText название банды от пользовтеля
+        if (money >= 10000) then
+            
         end
     end
 end
