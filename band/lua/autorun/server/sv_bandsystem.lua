@@ -1,0 +1,1 @@
+resource.AddSingleFile("materials/close.png")

@@ -25,7 +25,7 @@ local gradredbtn = Color(133, 33, 33)
 local redbtn_dark = Color(127, 51, 51)
 local greenbtn_dark = Color(49, 107, 44)
 
-local close = Material("qwscoreboard/close.png")
+local close = Material("materials/close.png")
 
 function buy_band_ui()
     local frame = vgui.Create("DFrame")
