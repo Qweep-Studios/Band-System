@@ -18,12 +18,18 @@ local f2 = Color(30, 30, 35)
 local cb1 = Color(255, 255, 255)
 local cb2 = Color(185, 185, 185)
 local te1 = Color(68, 68, 73, 240)
+local redbtn = Color(189, 60, 60)
+local greenbtn = Color(90, 191, 80)
+local gradgreenbtn = Color(48, 130, 40)
+local gradredbtn = Color(133, 33, 33)
+local redbtn_dark = Color(127, 51, 51)
+local greenbtn_dark = Color(49, 107, 44)
 
 local close = Material("qwscoreboard/close.png")
 
 function buy_band_ui()
     local frame = vgui.Create("DFrame")
-    frame:SetSize(scrw*0.5, scrh*0.7)
+    frame:SetSize(scrw*0.35, scrh*0.5)
     frame:SetTitle('')
     frame:Center()
     frame:MakePopup()
@@ -67,7 +73,7 @@ function buy_band_ui()
         local inputText = textentry:GetText()
 
         if inputText == "" then
-            draw.SimpleText('Введите сюда название...', 'ui.font1', 0, 0, cb2, TEXT_ALIGN_LEFT)
+            draw.SimpleText('Введите сюда название...', 'ui.font1', w * 0.5, h * 0.5, cb2, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         end
 
         self:DrawTextEntryText(
@@ -75,5 +81,29 @@ function buy_band_ui()
             self:GetHighlightColor(),
             self:GetCursorColor()
         )
+    end
+
+    local selectbtn = vgui.Create('DButton', frame)
+    selectbtn:SetSize(scrw*0.10, scrh*0.030)
+    selectbtn:Center()
+    selectbtn:SetPos(selectbtn:GetX(), selectbtn:GetY() + 50)
+    selectbtn:SetText("")
+    selectbtn.Paint = function(self, w, h)
+        local inputText = textentry:GetText()
+        local gradient = Material("gui/center_gradient")
+
+        if inputText == "" then
+            draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and redbtn_dark or redbtn)
+            surface.SetMaterial(gradient)
+            surface.SetDrawColor(gradredbtn)
+            surface.DrawTexturedRect(0, 0, w, h)
+            draw.SimpleText('Купить', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        else
+            draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and greenbtn_dark or greenbtn)
+            surface.SetMaterial(gradient)
+            surface.SetDrawColor(gradgreenbtn)
+            surface.DrawTexturedRect(0, 0, w, h)
+            draw.SimpleText('Купить', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        end
     end
 end
