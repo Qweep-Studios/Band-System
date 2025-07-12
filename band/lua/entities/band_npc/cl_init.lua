@@ -31,3 +31,13 @@ net.Receive("Bandnpc", function()
     timer.Create("Cdnpc", 1, 1, function() end)
 end)
 
+net.Receive("mainBandnpc", function()
+    local ply = net.ReadPlayer()
+    if timer.Exists("Cdnpc") then
+        ply:ChatPrint("Подождите...")
+        return
+    end
+    mainmenu() --- функция из ui/client/cl_ui.lua
+    timer.Create("Cdnpc", 1, 1, function() end)
+end)
+

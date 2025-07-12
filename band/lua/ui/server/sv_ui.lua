@@ -1,4 +1,5 @@
 util.AddNetworkString("MoneyRemove")
+util.AddNetworkString("BandTitle")
 
 net.Receive("MoneyRemove", function(len, ply)
     local price_band = net.ReadInt(18)
@@ -12,4 +13,19 @@ net.Receive("MoneyRemove", function(len, ply)
     ply:addMoney(-price_band)
     sql.Query("INSERT INTO bands_bsystem (title, steamid_leader, members, rank_first, rank_second, rank_third) VALUES (" .. sql.SQLStr(title_band) .. "," .. sql.SQLStr(lead_steamid) .. "," .. defoult .. "," .. sql.SQLStr(defoult_rank1) .. "," .. sql.SQLStr(defoult_rank2) .. "," .. sql.SQLStr(defoult_rank3) .. ")")
     sql.Query("INSERT INTO bands_members (steamid64, title, rank) VALUES (" .. sql.SQLStr(lead_steamid) .. "," .. sql.SQLStr(title_band) .. "," .. sql.SQLStr("Глава") ..")")
+end)
+
+net.Receive("BandTitle", function(len, ply)
+    local steamid64 = ply:SteamID64()
+    local query = "SELECT title FROM bands_members WHERE steamid64 = " .. sql.SQLStr(steamid64)
+    local result = sql.Query(query)
+    local title = "Неизвестно"
+    
+    if result and result[1] then
+        title = result[1].title
+    end
+    
+    net.Start("BandTitle")
+    net.WriteString(title)
+    net.Send(ply)
 end)

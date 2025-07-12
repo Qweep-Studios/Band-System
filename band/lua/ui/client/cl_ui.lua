@@ -94,12 +94,12 @@ function buy_band_ui()
         local gradient = Material("gui/center_gradient")
         local money = LocalPlayer():getDarkRPVar("money")
 
-        if #inputText > 3 and #inputText < 13 and (money >= 100000) then
+        if #inputText > 3 and #inputText < 25 and (money >= 100000) then
             draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and greenbtn_dark or greenbtn)
             surface.SetMaterial(gradient)
             surface.SetDrawColor(gradgreenbtn)
             surface.DrawTexturedRect(0, 0, w, h)
-            draw.SimpleText('Купить за 100000', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+            draw.SimpleText('Купить за 100000$', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         else
             draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and redbtn_dark or redbtn)
             surface.SetMaterial(gradient)
@@ -118,10 +118,10 @@ function buy_band_ui()
         if #inputText <= 3 then
             notification.AddLegacy("У вас слишком маленькое название!", NOTIFY_GENERIC, 2)
         end
-        if #inputText >= 13 then
+        if #inputText >= 25 then
             notification.AddLegacy("У вас слишком большое название!", NOTIFY_GENERIC, 2)
         end
-        if (money >= band_price and #inputText > 3 and #inputText < 13) then
+        if (money >= band_price and #inputText > 3 and #inputText < 25) then
             frame:Remove()
 
             local yesorno = vgui.Create('DFrame')
@@ -135,7 +135,7 @@ function buy_band_ui()
                 draw.RoundedBox(8, 0, 0, w, h, f1)
                 draw.RoundedBoxEx(8, 0, 0, w, 30, f2, true, true, false, false)
 
-                draw.SimpleText('Вы уверены что хотите это купить за 100000?', 'ui.font0', w * 0.5, h * 0.35, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                draw.SimpleText('Вы уверены что хотите это купить за 100000$?', 'ui.font0', w * 0.5, h * 0.35, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
             end
             local yes = vgui.Create('DButton', yesorno)
             yes:SetSize(scrw*0.07, scrh*0.030)

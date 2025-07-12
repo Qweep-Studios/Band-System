@@ -4,6 +4,7 @@ AddCSLuaFile("ui/client/cl_ui.lua")
 AddCSLuaFile("ui/client/cl_main_ui.lua")
 include("shared.lua")
 util.AddNetworkString("Bandnpc")
+util.AddNetworkString("mainBandnpc")
 
 function ENT:Initialize()
     self:SetModel("models/Humans/Group01/male_02.mdl")
@@ -19,6 +20,11 @@ end
 function ENT:Use(ply)
     local steamid64 = ply:SteamID64()
     local steamlead = sql.Query("SELECT title FROM bands_bsystem WHERE steamid_leader = " .. sql.SQLStr(steamid64))
+    if steamlead then
+        net.Start("mainBandnpc")
+        net.WritePlayer(ply)
+        net.Send(ply)
+    end
     if !steamlead then
         net.Start("Bandnpc")
         net.WritePlayer(ply)
