@@ -18,14 +18,15 @@ end)
 net.Receive("BandTitle", function(len, ply)
     local steamid64 = ply:SteamID64()
     local query = "SELECT title FROM bands_members WHERE steamid64 = " .. sql.SQLStr(steamid64)
+    local rank = sql.Query("SELECT rank FROM bands_members WHERE steamid64 = " .. sql.SQLStr(steamid64))
     local result = sql.Query(query)
     local title = "Неизвестно"
     
-    if result and result[1] then
-        title = result[1].title
-    end
+    title = result[1].title
+    rank = rank[1].rank
     
     net.Start("BandTitle")
     net.WriteString(title)
+    net.WriteString(rank)
     net.Send(ply)
 end)

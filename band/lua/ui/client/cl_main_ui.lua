@@ -22,17 +22,13 @@ function mainmenu()
     local animDuration = 0.2
 
     frame.Paint = function(self, w, h)
-        local text = "Неизвестно"
+        net.Start("BandTitle")
+        net.SendToServer()
 
-        if not self.titleRequested then
-            net.Start("BandTitle")
-            net.SendToServer()
-            self.titleRequested = true
-        end
-
-        if self.bandTitle then
-            text = self.bandTitle
-        end
+        net.Receive("BandTitle", function()
+            text = net.ReadString()
+            rank = net.ReadString()
+        end)
 
         local progress = (CurTime() - startTime) / animDuration
         progress = math.Clamp(progress, 0, 1)
@@ -96,18 +92,9 @@ function mainmenu()
         draw.SimpleText('Основное', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
     general.DoClick = function()
-        if (gframe:IsVisible() == true) then
-            return
-        end
-        if (gframe:IsVisible() == false) then
-            gframe:SetVisible(true)
-        end
-        if (mframe:IsVisible() == true) then
-            mframe:SetVisible(false)
-        end
-        if (sframe:IsVisible() == true) then
-            sframe:SetVisible(false)
-        end
+        gframe:SetVisible(true)
+        sframe:SetVisible(false)
+        mframe:SetVisible(false)
     end
 
     playerlist = vgui.Create("DButton", uppanel)
@@ -124,18 +111,9 @@ function mainmenu()
         draw.SimpleText('Участники', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
     playerlist.DoClick = function()
-        if (mframe:IsVisible() == true) then
-            return
-        end
-        if (mframe:IsVisible() == false) then
-            mframe:SetVisible(true)
-        end
-        if (gframe:IsVisible() == true) then
-            mframe:SetVisible(false)
-        end
-        if (sframe:IsVisible() == true) then
-            sframe:SetVisible(false)
-        end
+        gframe:SetVisible(false)
+        sframe:SetVisible(false)
+        mframe:SetVisible(true)
     end
 
     settings = vgui.Create("DButton", uppanel)
@@ -152,18 +130,9 @@ function mainmenu()
         draw.SimpleText('Настройки', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
     settings.DoClick = function()
-        if (sframe:IsVisible() == true) then
-            return
-        end
-        if (sframe:IsVisible() == false) then
-            sframe:SetVisible(true)
-        end
-        if (mframe:IsVisible() == true) then
-            mframe:SetVisible(false)
-        end
-        if (gframe:IsVisible() == true) then
-            gframe:SetVisible(false)
-        end
+        gframe:SetVisible(false)
+        sframe:SetVisible(true)
+        mframe:SetVisible(false)
     end
 end
 
@@ -187,7 +156,13 @@ function members_menu()
     mframe.Paint = function(self, w, h)
         draw.RoundedBox(8, 0, 0, w, h, f2)
     end
+    --- Переделай, ты лютую хуйню там написал
+    --- А лучше дождись пока я проснусь
+    --- p.s проблема с градиентом была, и код в общеем не правильный
+end
 
+--[[
+function scroll()
     local scroll = vgui.Create("DScrollPanel", mframe)
     scroll:Dock(FILL)
     scroll:DockMargin(10, 0, 10, 10)
@@ -231,7 +206,7 @@ function members_menu()
         end
     end
 end
-
+]]--
 function settings_menu()
     sframe = vgui.Create("DPanel", frame)
     sframe:SetSize(scrw*0.59, scrh*0.59)
