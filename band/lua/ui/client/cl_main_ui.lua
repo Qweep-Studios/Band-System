@@ -1,4 +1,3 @@
-
 local f1 = Color(40, 40, 45, 232)
 local f2 = Color(30, 30, 35)
 local f3 = Color(41, 41, 53)
@@ -17,7 +16,6 @@ function mainmenu()
     frame:ShowCloseButton(false)
     frame:SetDraggable(false)
     frame:SetAlpha(0)
-
     local startTime = CurTime()
     local animDuration = 0.2
 
@@ -33,12 +31,46 @@ function mainmenu()
 
         draw.SimpleText(text, "ui.font0", w * 0.5, 10, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
     end
+
+    function general_menu()
+        gframe = vgui.Create("DPanel", frame)
+        gframe:SetSize(scrw*0.59, scrh*0.59)
+        gframe:SetPos(scrw*0.205, scrh*0.255)
+        gframe:MakePopup()
+        gframe:SetDrawOnTop(true)
+        gframe.Paint = function(self, w, h)
+            draw.RoundedBox(8, 0, 0, w, h, f2)
+        end
+    end
+
+    function members_menu()
+        mframe = vgui.Create("DPanel", frame)
+        mframe:SetSize(scrw*0.59, scrh*0.59)
+        mframe:SetPos(scrw*0.205, scrh*0.255)
+        mframe:MakePopup()
+        mframe:SetDrawOnTop(true)
+        mframe.Paint = function(self, w, h)
+            draw.RoundedBox(8, 0, 0, w, h, f2)
+        end
+    end
+
+    function settings_menu()
+        sframe = vgui.Create("DPanel", frame)
+        sframe:SetSize(scrw*0.59, scrh*0.59)
+        sframe:SetPos(scrw*0.205, scrh*0.255)
+        sframe:MakePopup()
+        sframe:SetDrawOnTop(true)
+        sframe.Paint = function(self, w, h)
+            draw.RoundedBox(8, 0, 0, w, h, f2)
+        end
+    end
+
     general_menu()
     members_menu()
     settings_menu()
-    gframe:Remove()
-    mframe:Remove()
-    sframe:Remove()
+    gframe:SetVisible(true)
+    mframe:SetVisible(false)
+    sframe:SetVisible(false)
 
     local closebtn = vgui.Create('DButton', frame)
     closebtn:SetSize(scrw*0.020, scrh*0.020)
@@ -76,17 +108,17 @@ function mainmenu()
         draw.SimpleText('Основное', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
     general.DoClick = function()
+        if (gframe:IsVisible() == true) then
+            return
+        end
         if (gframe:IsVisible() == false) then
-            general_menu()
+            gframe:SetVisible(true)
         end
         if (mframe:IsVisible() == true) then
-            mframe:Remove()
-        end
-        if (gframe:IsVisible() == true) then
-            gframe:Remove()
+            mframe:SetVisible(false)
         end
         if (sframe:IsVisible() == true) then
-            sframe:Remove()
+            sframe:SetVisible(false)
         end
     end
 
@@ -104,17 +136,17 @@ function mainmenu()
         draw.SimpleText('Участники', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
     playerlist.DoClick = function()
-        if (mframe:IsVisible() == false) then
-            members_menu()
-        end
         if (mframe:IsVisible() == true) then
             return
         end
+        if (mframe:IsVisible() == false) then
+            mframe:SetVisible(true)
+        end
         if (gframe:IsVisible() == true) then
-            gframe:Remove()
+            mframe:SetVisible(false)
         end
         if (sframe:IsVisible() == true) then
-            sframe:Remove()
+            sframe:SetVisible(false)
         end
     end
 
@@ -132,52 +164,18 @@ function mainmenu()
         draw.SimpleText('Настройки', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
     settings.DoClick = function()
-        if (sframe:IsVisible() == false) then
-            settings_menu()
-        end
-        if (mframe:IsVisible() == true) then
-            mframe:Remove()
-        end
-        if (gframe:IsVisible() == true) then
-            gframe:Remove()
-        end
         if (sframe:IsVisible() == true) then
             return
         end
-    end
-    general_menu()
-end
-
-function general_menu()
-    gframe = vgui.Create("DPanel")
-    gframe:SetSize(scrw*0.59, scrh*0.59)
-    gframe:SetPos(0, scrh*0.255)
-    gframe:CenterHorizontal()
-    gframe:MakePopup()
-    gframe.Paint = function(self, w, h)
-        draw.RoundedBox(8, 0, 0, w, h, f2)
-    end
-end
-
-function members_menu()
-    mframe = vgui.Create("DPanel")
-    mframe:SetSize(scrw*0.59, scrh*0.59)
-    mframe:SetPos(0, scrh*0.255)
-    mframe:CenterHorizontal()
-    mframe:MakePopup()
-    mframe.Paint = function(self, w, h)
-        draw.RoundedBox(8, 0, 0, w, h, f2)
-    end
-end
-
-function settings_menu()
-    sframe = vgui.Create("DPanel")
-    sframe:SetSize(scrw*0.59, scrh*0.59)
-    sframe:SetPos(0, scrh*0.255)
-    sframe:CenterHorizontal()
-    sframe:MakePopup()
-    sframe.Paint = function(self, w, h)
-        draw.RoundedBox(8, 0, 0, w, h, f2)
+        if (sframe:IsVisible() == false) then
+            sframe:SetVisible(true)
+        end
+        if (mframe:IsVisible() == true) then
+            mframe:SetVisible(false)
+        end
+        if (gframe:IsVisible() == true) then
+            gframe:SetVisible(false)
+        end
     end
 end
 

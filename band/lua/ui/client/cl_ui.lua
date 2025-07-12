@@ -112,16 +112,16 @@ function buy_band_ui()
     selectbtn.DoClick = function()
         local inputText = textentry:GetText()
         local money = LocalPlayer():getDarkRPVar("money") --- inputText название банды от пользовтеля
-        if (money < 100000) then
+        if (money < band_price) then
             notification.AddLegacy("У вас не хватет денег!", NOTIFY_GENERIC, 2)
         end
-        if #inputText < 3 then
+        if #inputText <= 3 then
             notification.AddLegacy("У вас слишком маленькое название!", NOTIFY_GENERIC, 2)
         end
-        if #inputText > 13 then
+        if #inputText >= 13 then
             notification.AddLegacy("У вас слишком большое название!", NOTIFY_GENERIC, 2)
         end
-        if (money >= 100000) and #inputText > 3 and #inputText < 13 then
+        if (money >= band_price and #inputText > 3 and #inputText < 13) then
             frame:Remove()
 
             local yesorno = vgui.Create('DFrame')
@@ -155,6 +155,7 @@ function buy_band_ui()
                 yesorno:Remove()
                 net.Start("MoneyRemove")
                 net.WriteInt(band_price, 18)
+                net.WriteString(inputText)
                 net.SendToServer()
             end
 

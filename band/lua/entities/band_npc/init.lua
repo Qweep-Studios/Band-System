@@ -17,7 +17,11 @@ function ENT:Initialize()
 end
 
 function ENT:Use(ply)
-    net.Start("Bandnpc")
-    net.WritePlayer(ply)
-    net.Send(ply)
+    local steamid64 = ply:SteamID64()
+    local steamlead = sql.Query("SELECT title FROM bands_bsystem WHERE steamid_leader = " .. sql.SQLStr(steamid64))
+    if !steamlead then
+        net.Start("Bandnpc")
+        net.WritePlayer(ply)
+        net.Send(ply)
+    end
 end
