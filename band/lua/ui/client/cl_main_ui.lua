@@ -7,6 +7,8 @@ local cb2 = Color(185, 185, 185)
 local color_panelplayer = Color(30, 45, 65)
 local color_panelHOVplayer = Color(41, 60, 83)
 
+local members = "0" -- Дефолтное количество
+
 local close = Material("materials/close.png")
 
 function mainmenu()
@@ -39,13 +41,6 @@ function mainmenu()
 
         draw.SimpleText(text, "ui.font0", w * 0.5, 10, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
     end
-
-    net.Receive("BandTitle", function()
-        local title_band = net.ReadString()
-        if IsValid(frame) then
-            frame.bandTitle = title_band
-        end
-    end)
 
     general_menu()
     members_menu()
@@ -136,6 +131,10 @@ function mainmenu()
     end
 end
 
+net.Receive("BandMembers", function()
+    members = net.ReadString() or "0"
+end)
+
 function general_menu()
     gframe = vgui.Create("DPanel", frame)
     gframe:SetSize(scrw*0.59, scrh*0.59)
@@ -144,6 +143,27 @@ function general_menu()
     gframe:SetDrawOnTop(true)
     gframe.Paint = function(self, w, h)
         draw.RoundedBox(8, 0, 0, w, h, f2)
+    end
+    local member_panel = vgui.Create('DPanel', gframe)
+    member_panel:SetSize(scrw*0.13, scrh*0.10)
+    member_panel:SetPos(scrw*0.030, scrh*0.050)
+    member_panel.Paint = function(self, w, h)
+
+        draw.RoundedBox(8, 0, 0, w, h, f4)
+        draw.SimpleText('Участников', 'ui.font2', w * 0.5, 40, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText(members .. '/30', 'ui.font0', w * 0.5, 70, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+
+        net.Start("BandMembers")
+        net.SendToServer()
+
+    end
+    local online_panel = vgui.Create('DPanel', gframe)
+    online_panel:SetSize(scrw*0.13, scrh*0.10)
+    online_panel:SetPos(scrw*0.170, scrh*0.050)
+    online_panel.Paint = function(self, w, h)
+        draw.RoundedBox(8, 0, 0, w, h, f4)
+        draw.SimpleText('Онлайн', 'ui.font2', w * 0.5, 40, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText('1', 'ui.font0', w * 0.5, 70, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
 end
 
@@ -159,6 +179,8 @@ function members_menu()
     --- Переделай, ты лютую хуйню там написал
     --- А лучше дождись пока я проснусь
     --- p.s проблема с градиентом была, и код в общеем не правильный
+
+    -- я просто взял с моего прошлого кода эту хуйню
 end
 
 --[[
@@ -217,5 +239,3 @@ function settings_menu()
         draw.RoundedBox(8, 0, 0, w, h, f2)
     end
 end
-
-concommand.Add('mainmenu', mainmenu)

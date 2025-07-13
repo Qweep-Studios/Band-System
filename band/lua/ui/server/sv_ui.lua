@@ -1,5 +1,6 @@
 util.AddNetworkString("MoneyRemove")
 util.AddNetworkString("BandTitle")
+util.AddNetworkString("BandMembers")
 
 net.Receive("MoneyRemove", function(len, ply)
     local price_band = net.ReadInt(18)
@@ -28,5 +29,18 @@ net.Receive("BandTitle", function(len, ply)
     net.Start("BandTitle")
     net.WriteString(title)
     net.WriteString(rank)
+    net.Send(ply)
+end)
+
+net.Receive("BandMembers", function(len, ply)
+    local steamid64 = ply:SteamID64()
+    local query = "SELECT members FROM bands_bsystem WHERE steamid_leader = " .. sql.SQLStr(steamid64)
+    local result = sql.Query(query)
+    local count = "0"
+
+    count = result[1].members
+    
+    net.Start("BandMembers")
+    net.WriteString(count)
     net.Send(ply)
 end)

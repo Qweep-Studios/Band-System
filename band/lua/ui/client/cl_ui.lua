@@ -14,6 +14,12 @@ surface.CreateFont('ui.font1', {
     size = math.ceil(30 / 1800 * ScrH())
 })
 
+surface.CreateFont('ui.font2', {
+    font = 'Overpass Bold',
+    extended = true,
+    size = math.ceil(50 / 1800 * ScrH())
+})
+
 local f1 = Color(40, 40, 45, 232)
 local f2 = Color(30, 30, 35)
 local cb1 = Color(255, 255, 255)
