@@ -11,6 +11,8 @@ local members = "0" -- Дефолтное количество
 
 local close = Material("materials/close.png")
 
+local playermanager = false
+
 function mainmenu()
     local frame = vgui.Create("DFrame")
     frame:SetSize(scrw*0.6, scrh*0.7)
@@ -206,7 +208,13 @@ function members_menu()
             draw.SimpleText(name, "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         end
         player_panel.DoClick = function()
-            --
+            if playermanager == false then
+                player_panel:SetTall(92)
+                playermanager = true
+            else
+                player_panel:SetTall(42)
+                playermanager = false
+            end
         end
     end
 end
