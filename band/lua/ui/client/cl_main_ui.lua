@@ -16,7 +16,7 @@ function mainmenu()
     frame:SetSize(scrw*0.6, scrh*0.7)
     frame:SetTitle('')
     frame:Center()
-    frame:MakePopup()
+    --frame:MakePopup()
     frame:ShowCloseButton(false)
     frame:SetDraggable(false)
     frame:SetAlpha(0)
@@ -140,7 +140,6 @@ function general_menu()
     gframe:SetSize(scrw*0.59, scrh*0.59)
     gframe:SetPos(scrw*0.205, scrh*0.255)
     gframe:MakePopup()
-    gframe:SetDrawOnTop(true)
     gframe.Paint = function(self, w, h)
         draw.RoundedBox(8, 0, 0, w, h, f2)
     end
@@ -172,13 +171,13 @@ function members_menu()
     mframe:SetSize(scrw*0.59, scrh*0.59)
     mframe:SetPos(scrw*0.205, scrh*0.255)
     mframe:MakePopup()
-    mframe:SetDrawOnTop(true)
     mframe.Paint = function(self, w, h)
         draw.RoundedBox(8, 0, 0, w, h, f2)
     end
 
     local sp = vgui.Create('DScrollPanel', mframe)
     sp:Dock(FILL)
+    sp:GetVBar():SetWide(0) -- убирает линию и кнопки sp
 
     for i, ply in ipairs(player.GetAll()) do
         local player_panel = vgui.Create('DButton', sp)
@@ -206,66 +205,17 @@ function members_menu()
 
             draw.SimpleText(name, "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         end
-    end
-    --- Переделай, ты лютую хуйню там написал
-    --- А лучше дождись пока я проснусь
-    --- p.s проблема с градиентом была, и код в общеем не правильный
-
-    -- я просто взял с моего прошлого кода эту хуйню
-end
-
---[[
-function scroll()
-    local scroll = vgui.Create("DScrollPanel", mframe)
-    scroll:Dock(FILL)
-    scroll:DockMargin(10, 0, 10, 10)
-    scroll:GetVBar():SetWide(8)
-    scroll:GetVBar():SetHideButtons(true)
-    scroll:GetVBar().Paint = function(_, w, h)
-        draw.RoundedBox(4, 0, 0, w, h, Color(30, 45, 60, 150))
-    end
-    scroll:GetVBar().btnGrip.Paint = function(_, w, h)
-        draw.RoundedBox(4, 0, 0, w, h, Color(80, 120, 160))
-    end
-
-    for i, ply in ipairs(player.GetAll()) do
-        local playerPanel = vgui.Create("DButton", scroll)
-        playerPanel:Dock(TOP)
-        playerPanel:SetTall(42)
-        playerPanel:DockMargin(0, 0, 0, 3)
-        playerPanel:SetText("")
-        playerPanel:SetAlpha(0)
-
-        playerPanel:AlphaTo(255, 0.2, 0.05 * i)
-        playerPanel:SetPos(playerPanel:GetPos())
-        local x, y = playerPanel:GetPos()
-        playerPanel:SetPos(x, y + 10)
-        local x, y = playerPanel:GetPos()
-        playerPanel:MoveTo(x, y - 10, 0.2)
-        
-        playerPanel.Paint = function(_, w, h)
-            draw.RoundedBox(4, 0, 0, w, h, color_panelplayer)
-            local gradient = Material("gui/center_gradient")
-            surface.SetMaterial(gradient)
-            surface.SetDrawColor(15, 25, 40, 200)
-            surface.DrawTexturedRect(0, 0, w, h)
-            
-            if playerPanel:IsHovered() then
-                draw.RoundedBox(4, 0, 0, w, h, color_panelHOVplayer)
-                surface.SetMaterial(gradient)
-                surface.SetDrawColor(20, 35, 55, 220)
-                surface.DrawTexturedRect(0, 0, w, h)
-            end
+        player_panel.DoClick = function()
+            --
         end
     end
 end
-]]--
+
 function settings_menu()
     sframe = vgui.Create("DPanel", frame)
     sframe:SetSize(scrw*0.59, scrh*0.59)
     sframe:SetPos(scrw*0.205, scrh*0.255)
     sframe:MakePopup()
-    sframe:SetDrawOnTop(true)
     sframe.Paint = function(self, w, h)
         draw.RoundedBox(8, 0, 0, w, h, f2)
     end
