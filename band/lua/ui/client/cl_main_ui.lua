@@ -4,8 +4,8 @@ local f3 = Color(41, 41, 53)
 local f4 = Color(55, 55, 63)
 local cb1 = Color(255, 255, 255)
 local cb2 = Color(185, 185, 185)
-local color_panelplayer = Color(30, 45, 65)
-local color_panelHOVplayer = Color(41, 60, 83)
+local color_panelplayer = Color(46, 46, 46)
+local color_panelHOVplayer = Color(54, 54, 54)
 
 local members = "0" -- Дефолтное количество
 
@@ -175,6 +175,37 @@ function members_menu()
     mframe:SetDrawOnTop(true)
     mframe.Paint = function(self, w, h)
         draw.RoundedBox(8, 0, 0, w, h, f2)
+    end
+
+    local sp = vgui.Create('DScrollPanel', mframe)
+    sp:Dock(FILL)
+
+    for i, ply in ipairs(player.GetAll()) do
+        local player_panel = vgui.Create('DButton', sp)
+        player_panel:SetSize(scrw*0.13, scrh*0.10)
+        player_panel:SetPos(scrw*0.030, scrh*0.050)
+        player_panel:SetText("")
+        player_panel:Dock(TOP)
+        player_panel:SetTall(42)
+        player_panel:DockMargin(15, 6, 15, 3)
+        player_panel.Paint = function(_, w, h)
+            local name = ply:Name()
+
+            draw.RoundedBox(4, 0, 0, w, h, f1)
+            local gradient = Material("gui/center_gradient")
+            surface.SetMaterial(gradient)
+            surface.SetDrawColor(27, 27, 27, 200)
+            surface.DrawTexturedRect(0, 0, w, h)
+            
+            if player_panel:IsHovered() then
+                draw.RoundedBox(4, 0, 0, w, h, color_panelHOVplayer)
+                surface.SetMaterial(gradient)
+                surface.SetDrawColor(49, 49, 49, 220)
+                surface.DrawTexturedRect(0, 0, w, h)
+            end
+
+            draw.SimpleText(name, "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        end
     end
     --- Переделай, ты лютую хуйню там написал
     --- А лучше дождись пока я проснусь
