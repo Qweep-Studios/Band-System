@@ -1,4 +1,6 @@
 resource.AddSingleFile("materials/close.png")
+resource.AddSingleFile("materials/down1.png")
+resource.AddSingleFile("materials/up1.png")
 include("ui/server/sv_ui.lua")
 AddCSLuaFile('ui/vgui/font.lua')
 

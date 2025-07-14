@@ -1,6 +1,7 @@
 util.AddNetworkString("MoneyRemove")
 util.AddNetworkString("BandTitle")
 util.AddNetworkString("BandMembers")
+util.AddNetworkString("Members")
 
 net.Receive("MoneyRemove", function(len, ply)
     local price_band = net.ReadInt(18)
@@ -34,20 +35,24 @@ end)
 
 net.Receive("BandMembers", function(len, ply)
     local steamid64 = ply:SteamID64()
-    local query = sql.Query("SELECT title FROM bands_members WHERE steamid64 = " .. sql.SQLStr(steamid64))
-    local bandname = query[1].title
-    local members = sql.Query("SELECT steamid64 FROM bands_members WHERE title = " .. sql.SQLStr(bandname))
-    local membercount = #members
+    local query = "SELECT members FROM bands_bsystem WHERE steamid_leader = " .. sql.SQLStr(steamid64)
+    local result = sql.Query(query)
+    local count = "0"
 
-    local onlinecount = 0
-    for _, member in ipairs(members) do
-        if player.GetBySteamID64(member.steamid64) then
-            onlinecount = onlinecount + 1
-        end
-    end
+    count = result[1].members
     
     net.Start("BandMembers")
-    net.WriteUInt(membercount, 8)
-    net.WriteUInt(onlinecount, 8)
+    net.WriteString(count)
+    net.Send(ply)
+end)
+
+net.Receive("Members", function(len, ply)
+    local ply64 = ply:SteamID64()
+    local band_title = sql.Query("SELECT title FROM bands_members WHERE steamid64 = " .. sql.SQLStr(ply64))
+    local title_first = band_title[1].title
+    local allmembers = sql.Query("SELECT steamid64 FROM bands_members WHERE title = " .. sql.SQLStr(title_first))
+
+    net.Start("Members")
+    net.WriteTable(allmembers)
     net.Send(ply)
 end)
