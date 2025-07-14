@@ -254,24 +254,22 @@ function scroll()
             net.Start("CheckRank")
             net.SendToServer()
             net.Receive("CheckRank", function()
-               local pl_rank = net.ReadString()
+               pl_rank = net.ReadString() --- net запрос сломался
             end)
             if pl_rank == "Участник" then
                 LocalPlayer():ChatPrint("Недостаточно прав!")
                 return 
             end
-            if target_rank == "Глава" then
-                return 
-            end
 
             if pl_rank == "Глава" then --- тут какой-то ебаный баг, надо найти в чем проблема
-                if target_rank == "Заместитель" then
+                if ranks[i] == "Заместитель" then
                     LocalPlayer():ChatPrint("Максимальный ранг!")
-                end
-                if target_rank == "Модератор" then
+                elseif ranks[i] == "Модератор" then
                     local targetid = allmembers[i].steamid64
-                    sql.Query("UPDATE bands_members SET rank = " .. sql.SQLStr("Заместитель") .. " WHERE steamid64 = " .. sql.SQLStr(targetid))
+                    sql.Query("UPDATE bands_members SET rank = " .. sql.SQLStr("Заместитель") .. " WHERE steamid64 = " .. sql.SQLStr(targetid)) -- переместить в sv
                     LocalPlayer():ChatPrint("Игрок успешно повышен до заместителя!")
+                elseif ranks[i] == "Глава" then
+                    return
                 end
             end
         end
