@@ -134,7 +134,8 @@ function mainmenu()
 end
 
 net.Receive("BandMembers", function()
-    members = net.ReadString() or "0"
+    members = net.ReadUInt(8) or "0"
+    online = net.ReadUInt(8) or "0"
 end)
 
 function general_menu()
@@ -164,7 +165,7 @@ function general_menu()
     online_panel.Paint = function(self, w, h)
         draw.RoundedBox(8, 0, 0, w, h, f4)
         draw.SimpleText('Онлайн', 'ui.font2', w * 0.5, 40, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-        draw.SimpleText('1', 'ui.font0', w * 0.5, 70, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText(online, 'ui.font0', w * 0.5, 70, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
 end
 
@@ -180,6 +181,9 @@ function members_menu()
     local sp = vgui.Create('DScrollPanel', mframe)
     sp:Dock(FILL)
     sp:GetVBar():SetWide(0) -- убирает линию и кнопки sp
+
+    net.Start("BandMembers")
+    net.SendToServer()
 
     for i, ply in ipairs(player.GetAll()) do
         local player_panel = vgui.Create('DButton', sp)
