@@ -138,7 +138,8 @@ function mainmenu()
 end
 
 net.Receive("BandMembers", function()
-    members = net.ReadString() or "0"
+    members = net.ReadUInt(8) or "0"
+    online = net.ReadUInt(8) or "0"
 end)
 
 function general_menu()
@@ -168,7 +169,7 @@ function general_menu()
     online_panel.Paint = function(self, w, h)
         draw.RoundedBox(8, 0, 0, w, h, f4)
         draw.SimpleText('Онлайн', 'ui.font2', w * 0.5, 40, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-        draw.SimpleText('1', 'ui.font0', w * 0.5, 70, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText(online, 'ui.font0', w * 0.5, 70, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
 end
 
@@ -254,14 +255,14 @@ function scroll()
             net.Start("CheckRank")
             net.SendToServer()
             net.Receive("CheckRank", function()
-               pl_rank = net.ReadString() --- net запрос сломался
+               pl_rank = net.ReadString()
             end)
             if pl_rank == "Участник" then
                 LocalPlayer():ChatPrint("Недостаточно прав!")
                 return 
             end
 
-            if pl_rank == "Глава" then --- тут какой-то ебаный баг, надо найти в чем проблема
+            if pl_rank == "Глава" then
                 if ranks[i] == "Заместитель" then
                     LocalPlayer():ChatPrint("Максимальный ранг!")
                 elseif ranks[i] == "Модератор" then

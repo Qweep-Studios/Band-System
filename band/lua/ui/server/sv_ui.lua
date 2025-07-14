@@ -36,14 +36,21 @@ end)
 
 net.Receive("BandMembers", function(len, ply)
     local steamid64 = ply:SteamID64()
-    local query = "SELECT members FROM bands_bsystem WHERE steamid_leader = " .. sql.SQLStr(steamid64)
-    local result = sql.Query(query)
-    local count = "0"
+    local query = sql.Query("SELECT title FROM bands_members WHERE steamid64 = " .. sql.SQLStr(steamid64))
+    local bandname = query[1].title
+    local members = sql.Query("SELECT steamid64 FROM bands_members WHERE title = " .. sql.SQLStr(bandname))
+    local membercount = #members
 
-    count = result[1].members
+    local onlinecount = 0
+    for _, member in ipairs(members) do
+        if player.GetBySteamID64(member.steamid64) then
+            onlinecount = onlinecount + 1
+        end
+    end
     
     net.Start("BandMembers")
-    net.WriteString(count)
+    net.WriteUInt(membercount, 8)
+    net.WriteUInt(onlinecount, 8)
     net.Send(ply)
 end)
 
