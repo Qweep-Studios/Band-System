@@ -190,6 +190,12 @@ function members_menu()
 
     net.Receive("Members", function()
         allmembers = net.ReadTable() -- Получение всех участников банды
+        allranks = net.ReadTable()
+        ranks = {}
+
+        for i, rank_second in ipairs(allranks) do
+            table.insert(ranks, rank_second.rank)
+        end
         allmem = {}
         for i, ply in ipairs(allmembers) do
             steamworks.RequestPlayerInfo(ply.steamid64, function(name)
@@ -210,6 +216,7 @@ function scroll()
         player_panel:Dock(TOP)
         player_panel:SetTall(42)
         player_panel:DockMargin(15, 6, 15, 3)
+
         local up_button = vgui.Create("DButton", player_panel)
         up_button:SetPos(player_panel:GetWide() * 3.5, (player_panel:GetTall() - 32) * 0.5)
         up_button:SetSize(32, 32)
@@ -227,9 +234,9 @@ function scroll()
             surface.SetMaterial(gradient)
             surface.SetDrawColor(27, 27, 27, 200)
             surface.DrawTexturedRect(0, 0, w, h)
-            
+            target_rank = ranks[i]
             draw.SimpleText(ply, "ui.font0", w * 0.06, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-            draw.SimpleText(rank, "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER) --- Поменять rank на другое
+            draw.SimpleText(target_rank, "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER) --- Поменять rank на другое
         end
 
         up_button.Paint = function(_, w, h)
@@ -241,6 +248,36 @@ function scroll()
             surface.SetDrawColor(down_button:IsHovered() and color_red or color_bred)
             surface.SetMaterial(down)
             surface.DrawTexturedRect(0, 0, w, h)
+        end
+
+        up_button.DoClick = function() -- Можно было сделать умнее, но мне было лень
+            net.Start("CheckRank")
+            net.SendToServer()
+            net.Receive("CheckRank", function()
+               local pl_rank = net.ReadString()
+            end)
+            if pl_rank == "Участник" then
+                LocalPlayer():ChatPrint("Недостаточно прав!")
+                return 
+            end
+            if target_rank == "Глава" then
+                return 
+            end
+
+            if pl_rank == "Глава" then --- тут какой-то ебаный баг, надо найти в чем проблема
+                if target_rank == "Заместитель" then
+                    LocalPlayer():ChatPrint("Максимальный ранг!")
+                end
+                if target_rank == "Модератор" then
+                    local targetid = allmembers[i].steamid64
+                    sql.Query("UPDATE bands_members SET rank = " .. sql.SQLStr("Заместитель") .. " WHERE steamid64 = " .. sql.SQLStr(targetid))
+                    LocalPlayer():ChatPrint("Игрок успешно повышен до заместителя!")
+                end
+            end
+        end
+
+        down_button.DoClick = function()
+            --
         end
     end
 end

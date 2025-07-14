@@ -2,14 +2,15 @@ util.AddNetworkString("MoneyRemove")
 util.AddNetworkString("BandTitle")
 util.AddNetworkString("BandMembers")
 util.AddNetworkString("Members")
+util.AddNetworkString("CheckRank")
 
 net.Receive("MoneyRemove", function(len, ply)
     local price_band = net.ReadInt(18)
     local title_band = net.ReadString()
     local defoult = 5 --- Поменять на конфиг
-    local defoult_rank1 = "Участник"
-    local defoult_rank2 = "Модератор"
-    local defoult_rank3 = "Заместитель"
+    defoult_rank1 = "Участник"
+    defoult_rank2 = "Модератор"
+    defoult_rank3 = "Заместитель"
     ply:ChatPrint(ply:Nick() .. ", вы успешно создали банду!")
     local lead_steamid = ply:SteamID64()
     ply:addMoney(-price_band)
@@ -51,8 +52,17 @@ net.Receive("Members", function(len, ply)
     local band_title = sql.Query("SELECT title FROM bands_members WHERE steamid64 = " .. sql.SQLStr(ply64))
     local title_first = band_title[1].title
     local allmembers = sql.Query("SELECT steamid64 FROM bands_members WHERE title = " .. sql.SQLStr(title_first))
+    local allranks = sql.Query("SELECT rank FROM bands_members WHERE title = " .. sql.SQLStr(title_first))
 
     net.Start("Members")
     net.WriteTable(allmembers)
+    net.WriteTable(allranks)
+    net.Send(ply)
+end)
+
+net.Receive("CheckRank", function(len, ply)
+    local ply_rank = sql.Query("SELECT rank FROM bands_members WHERE steamid64 = " .. sql.SQLStr(ply:SteamID64()))
+    net.Start("CheckRank")
+    net.WriteString(ply_rank[1].rank)
     net.Send(ply)
 end)
