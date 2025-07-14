@@ -10,8 +10,11 @@ local color_green = Color(0, 255, 0)
 local color_red = Color(255, 0, 0)
 local color_bred = Color(150, 50, 50)
 local color_bgreen = Color(50, 150, 50)
+local bwhite = Color(0, 0, 255)
+local white = Color(50, 50, 150)
 local up = Material("materials/up1.png")
 local down = Material("materials/down1.png")
+local uninvate = Material("materials/uninvite.png")
 
 local members = "0" -- Дефолтное количество
 
@@ -210,7 +213,7 @@ end
 
 function scroll()
     for i, ply in ipairs(allmem) do
-        local player_panel = vgui.Create('DPanel', sp) --- Поменял на dlabel
+        local player_panel = vgui.Create('DPanel', sp)
         player_panel:SetSize(scrw*0.13, scrh*0.10)
         player_panel:SetPos(scrw*0.030, scrh*0.050)
         player_panel:SetText("")
@@ -228,6 +231,11 @@ function scroll()
         down_button:SetSize(32, 32)
         down_button:SetText("")
 
+        local kick_button = vgui.Create("DButton", player_panel)
+        kick_button:SetPos(player_panel:GetWide() * 4, (player_panel:GetTall() - 32) * 0.5)
+        kick_button:SetSize(32, 32)
+        kick_button:SetText("")
+
         player_panel.Paint = function(_, w, h)
 
             draw.RoundedBox(4, 0, 0, w, h, f1)
@@ -237,11 +245,11 @@ function scroll()
             surface.DrawTexturedRect(0, 0, w, h)
             target_rank = ranks[i]
             draw.SimpleText(ply, "ui.font0", w * 0.06, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-            draw.SimpleText(target_rank, "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER) --- Поменять rank на другое
+            draw.SimpleText(target_rank, "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         end
 
         up_button.Paint = function(_, w, h)
-            surface.SetDrawColor(up_button:IsHovered() and color_green or color_bgreen) --- проверь как выглядят
+            surface.SetDrawColor(up_button:IsHovered() and color_green or color_bgreen)
             surface.SetMaterial(up)
             surface.DrawTexturedRect(0, 0, w, h)
         end
@@ -251,7 +259,14 @@ function scroll()
             surface.DrawTexturedRect(0, 0, w, h)
         end
 
-        up_button.DoClick = function() -- Можно было сделать умнее, но мне было лень
+        kick_button.Paint = function(_, w, h) -- Кнопка нажимается просто с ней хуйня какая-то
+            surface.SetDrawColor(up_button:IsHovered() and white or bwhite)
+            surface.SetMaterial(uninvate)
+            surface.DrawTexturedRect(0, 0, w, h)
+        end
+
+        up_button.DoClick = function()
+            targetid = allmembers[i].steamid64
             net.Start("CheckRank")
             net.SendToServer()
             net.Receive("CheckRank", function()
@@ -266,17 +281,116 @@ function scroll()
                 if ranks[i] == "Заместитель" then
                     LocalPlayer():ChatPrint("Максимальный ранг!")
                 elseif ranks[i] == "Модератор" then
-                    local targetid = allmembers[i].steamid64
-                    sql.Query("UPDATE bands_members SET rank = " .. sql.SQLStr("Заместитель") .. " WHERE steamid64 = " .. sql.SQLStr(targetid)) -- переместить в sv
+                    net.Start("Up")
+                        net.WriteString("Заместитель")
+                        net.WriteString(targetid)
+                    net.SendToServer()
                     LocalPlayer():ChatPrint("Игрок успешно повышен до заместителя!")
                 elseif ranks[i] == "Глава" then
                     return
+                elseif ranks[i] == "Участник" then
+                    net.Start("Up")
+                        net.WriteString("Модератор")
+                        net.WriteString(targetid)
+                    net.SendToServer()
+                    LocalPlayer():ChatPrint("Игрок успешно повышен до модератора!")
                 end
+            end
+
+            if pl_rank == "Заместитель" then
+                if ranks[i] == "Участник" then
+                    net.Start("Up")
+                        net.WriteString("Модератор")
+                        net.WriteString(targetid)
+                    net.SendToServer()
+                    LocalPlayer():ChatPrint("Игрок успешно повышен до модератора!")
+                end
+            end
+
+            if pl_rank == "Модератор" then
+                --- Тут прописать возможность добавлять в банду
             end
         end
 
         down_button.DoClick = function()
-            --
+            targetid = allmembers[i].steamid64
+            net.Start("CheckRank")
+            net.SendToServer()
+            net.Receive("CheckRank", function()
+               pl_rank = net.ReadString()
+            end)
+
+            if pl_rank == "Глава" then
+                if ranks[i] == "Заместитель" then
+                    net.Start("Down")
+                        net.WriteString("Модератор")
+                        net.WriteString(targetid)
+                    net.SendToServer()
+                    LocalPlayer():ChatPrint("Игрок успешно понижен до модератора!")
+                elseif ranks[i] == "Модератор" then
+                    net.Start("Down")
+                        net.WriteString("Участник")
+                        net.WriteString(targetid)
+                        LocalPlayer():ChatPrint("Игрок успешно понижен до модератора!")
+                    net.SendToServer()
+                    LocalPlayer():ChatPrint("Игрок успешно понижен до участника!")
+                end
+
+            elseif pl_rank == "Заместитель" then
+                if ranks[i] == "Модератор" then
+                    net.Start("Down")
+                        net.WriteString("Участник")
+                        net.WriteString(targetid)
+                    net.SendToServer()
+                    LocalPlayer():ChatPrint("Игрок успешно понижен до участника!")
+                end
+            end
+        end
+
+        kick_button.DoClick = function()
+            targetid = allmembers[i].steamid64
+            net.Start("CheckRank")
+            net.SendToServer()
+            net.Receive("CheckRank", function()
+               pl_rank = net.ReadString()
+            end)
+            if pl_rank == "Глава" then
+                if ranks[i] == "Заместитель" then
+                    net.Start("Kick")
+                        net.WriteString(targetid)
+                    net.SendToServer()
+                    LocalPlayer():ChatPrint("Игрок успешно был кикнут!")
+                elseif ranks[i] == "Модератор" then
+                    net.Start("Kick")
+                        net.WriteString(targetid)
+                    net.SendToServer()
+                    LocalPlayer():ChatPrint("Игрок успешно был кикнут!")
+                elseif ranks[i] == "Участник" then
+                    net.Start("Kick")
+                        net.WriteString(targetid)
+                    net.SendToServer()
+                    LocalPlayer():ChatPrint("Игрок успешно был кикнут!")
+                end
+            elseif pl_rank == "Заместитель" then
+                if ranks[i] == "Модератор" then
+                    net.Start("Kick")
+                        net.WriteString(targetid)
+                    net.SendToServer()
+                    LocalPlayer():ChatPrint("Игрок успешно был кикнут!")
+                elseif ranks[i] == "Участник" then
+                    net.Start("Kick")
+                        net.WriteString(targetid)
+                    net.SendToServer()
+                    LocalPlayer():ChatPrint("Игрок успешно был кикнут!")
+                end
+            elseif pl_rank == "Модератор" then
+                if ranks[i] == "Участник" then
+                    net.Start("Kick")
+                        net.WriteString(targetid)
+                    net.SendToServer()
+                    LocalPlayer():ChatPrint("Игрок успешно был кикнут!")
+                end
+            end
         end
     end
 end
