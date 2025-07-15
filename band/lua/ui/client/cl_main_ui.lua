@@ -1,3 +1,5 @@
+include("ui/vgui/vgui.lua")
+
 local f1 = Color(40, 40, 45, 232)
 local f2 = Color(30, 30, 35)
 local f3 = Color(41, 41, 53)
@@ -227,11 +229,18 @@ function general_menu()
         frame:Close()
 
         qw.ui.player_selector("Пригласить игрока", function(selectedPlayer)
-            if IsValid(selectedPlayer) then
-                net.Start("Invite")
-                -- net.WriteString()
-                -- net.WriteEntity(selectedPlayer)
-                net.SendToServer()
+            net.Start("CheckRank")
+            net.SendToServer()
+            net.Receive("CheckRank", function()
+                rinks = net.ReadString()
+            end)
+            if rinks == "Глава" or rinks == "Заместитель" or rinks == "Модератор" then
+                if IsValid(selectedPlayer) then
+                    net.Start("Invite")
+                        net.WriteString(text)
+                        net.WriteEntity(selectedPlayer)
+                    net.SendToServer()
+                end
             end
         end)
     end

@@ -1,4 +1,17 @@
--- Дониэль я это сюда пока тестого добавил потом заменю
+-- КОРОЧЕ, НЕ ТРОГАЙ ПОКА КАК ИГРОКИ ПОПАДАЮТ В СПИСОК ВСЕХ ИГРОКОВ, Я ЕГО ЗАВТРА САМ СДЕЛАЮ
+-- ПОПРОБУЙ РЕШИТЬ ПРОБЛЕМУ С ТЕМ, ЧТО КНОПКИ НЕ НАЖИМАЮТСЯ КРОМЕ ИНВАЙТА В НАЧАЛЕ
+
+surface.CreateFont('vgui.core.font0', {
+    font = 'Overpass Bold',
+    extended = true,
+    size = 20
+})
+
+surface.CreateFont('vgui.core.font1', {
+    font = 'Overpass Bold',
+    extended = true,
+    size = 25
+})
 
 qw = qw or {}
 qw.ui = qw.ui or {}
@@ -39,6 +52,18 @@ function qw.ui.player_selector(title, on_select, filter_func)
     scroll_panel:DockMargin(5, 35, 5, 5)
 
     for _, ply in pairs(player.GetAll()) do
+        net.Start("CheckInBand")
+            net.WritePlayer(ply)
+        net.SendToServer()
+
+        net.Receive("CheckInBand", function()
+            check = net.ReadInt(3)
+            print(check)
+        end)
+        if check == 1 then
+            continue 
+        end
+
         if isfunction(filter_func) and not filter_func(ply) then
             continue
         end

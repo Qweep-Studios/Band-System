@@ -7,6 +7,7 @@ util.AddNetworkString("Up")
 util.AddNetworkString("Down")
 util.AddNetworkString("Kick")
 util.AddNetworkString("Invite")
+util.AddNetworkString("CheckInBand")
 
 net.Receive("MoneyRemove", function(len, ply)
     local price_band = net.ReadInt(18)
@@ -96,5 +97,41 @@ net.Receive("Kick", function(len, ply)
 end)
 
 net.Receive("Invite", function(len, ply)
-    ply:ChatPrint("Даниэль доделай")
+    local title = net.ReadString()
+    local pl = net.ReadEntity()
+
+    sql.Query("INSERT INTO bands_members (steamid64, title, rank) VALUES (" .. sql.SQLStr(pl:SteamID64()) .. "," .. sql.SQLStr(title) .. "," .. sql.SQLStr("Участник") ..")")
+end)
+
+--[[
+net.Receive("CheckInBand", function(len, ply)
+    local playerband = net.ReadPlayer()
+    local check = sql.Query("SELECT rank FROM bands_members WHERE steamid64 = " .. sql.SQLStr(playerband:SteamID64()))
+    local check = (check[1] and check[1].rank) or 2
+    if IsValid(check) == true then
+        check = 1
+    end
+    -- check[1].rank
+    print(check)
+    net.Start("CheckInBand")
+        net.WriteInt(check, 3)
+    net.Send(ply)
+end)
+]]
+
+net.Receive("CheckInBand", function(len, ply)
+    local playerband = net.ReadPlayer()
+    
+    -- Запрос к базе данных
+    local check = sql.Query("SELECT rank FROM bands_members WHERE steamid64 = " .. sql.SQLStr(playerband:SteamID64()))
+    
+    -- Определяем статус: 1 - в банде, 2 - не в банде
+    local status = (check and check[1] and check[1].rank) and 1 or 2
+    
+    print("Статус игрока " .. playerband:Nick() .. ": " .. (status == 1 and "В банде" or "Не в банде"))
+    
+    -- Отправляем результат
+    net.Start("CheckInBand")
+        net.WriteInt(status, 3)
+    net.Send(ply)
 end)
