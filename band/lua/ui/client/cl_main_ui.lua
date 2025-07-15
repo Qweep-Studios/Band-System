@@ -12,16 +12,16 @@ local color_bred = Color(150, 50, 50)
 local color_bgreen = Color(50, 150, 50)
 local bwhite = Color(0, 0, 255)
 local white = Color(50, 50, 150)
-local up = Material("materials/up1.png")
-local down = Material("materials/down1.png")
-local uninvate = Material("materials/uninvite.png")
+local up = Material("materials/up1.png", 'smooth mips')
+local down = Material("materials/down1.png", 'smooth mips')
+local uninvate = Material("materials/uninvite.png", 'smooth mips')
 
 local members = "0" -- Дефолтное количество
 
-local close = Material("materials/close.png")
+local close = Material("materials/close.png", 'smooth mips')
 
 function mainmenu()
-    local frame = vgui.Create("DFrame")
+    frame = vgui.Create("DFrame")
     frame:SetSize(scrw*0.6, scrh*0.7)
     frame:SetTitle('')
     frame:Center()
@@ -173,6 +173,67 @@ function general_menu()
         draw.RoundedBox(8, 0, 0, w, h, f4)
         draw.SimpleText('Онлайн', 'ui.font2', w * 0.5, 40, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         draw.SimpleText(online, 'ui.font0', w * 0.5, 70, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    end
+    local funcpanel = vgui.Create('DPanel', gframe)
+    funcpanel:SetSize(scrw*0.20, scrh*0.50)
+    funcpanel:SetPos(scrw*0.370, scrh*0.050)
+    funcpanel.Paint = function(self, w, h)
+        draw.RoundedBox(8, 0, 0, w, h, f4)
+        draw.SimpleText('Действия', 'ui.font2', w * 0.5, 20, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    end
+    local scroll = vgui.Create('DScrollPanel', mframe)
+    scroll:SetPos(0, scrh*0.050)
+    scroll:Dock(FILL)
+    scroll:GetVBar():SetWide(0) -- убирает линию и кнопки sp
+
+    local leavebtn = vgui.Create('DButton', funcpanel)
+    leavebtn:SetSize(scrw*0.15, scrh*0.10)
+    leavebtn:SetPos(scrw*0.030, scrh*0.050)
+    leavebtn:SetText("")
+    leavebtn:Dock(TOP)
+    leavebtn:SetTall(42)
+    leavebtn:DockMargin(15, 50, 15, 3)
+    leavebtn.Paint = function(self, w, h)
+        local gradient = Material("gui/center_gradient")
+
+        draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and f3 or f1)
+        surface.SetMaterial(gradient)
+        surface.SetDrawColor(f4)
+        surface.DrawTexturedRect(0, 0, w, h)
+        draw.SimpleText('Покинуть банду', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    end
+
+    leavebtn.DoClick = function()
+        --
+    end
+
+    local addbtn = vgui.Create('DButton', funcpanel)
+    addbtn:SetSize(scrw*0.15, scrh*0.10)
+    addbtn:SetPos(scrw*0.030, scrh*0.050)
+    addbtn:SetText("")
+    addbtn:Dock(TOP)
+    addbtn:SetTall(42)
+    addbtn:DockMargin(15, 6, 15, 3)
+    addbtn.Paint = function(self, w, h)
+        local gradient = Material("gui/center_gradient")
+
+        draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and f3 or f1)
+        surface.SetMaterial(gradient)
+        surface.SetDrawColor(f4)
+        surface.DrawTexturedRect(0, 0, w, h)
+        draw.SimpleText('Пригласить в банду', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    end
+    addbtn.DoClick = function(self, w, h)
+        frame:Close()
+
+        qw.ui.player_selector("Пригласить игрока", function(selectedPlayer)
+            if IsValid(selectedPlayer) then
+                net.Start("Invite")
+                -- net.WriteString()
+                -- net.WriteEntity(selectedPlayer)
+                net.SendToServer()
+            end
+        end)
     end
 end
 
