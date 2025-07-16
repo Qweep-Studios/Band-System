@@ -11,6 +11,8 @@ util.AddNetworkString("Leave")
 util.AddNetworkString("RequestAllBandStatuses")
 util.AddNetworkString("ReceiveAllBandStatuses")
 util.AddNetworkString("Delete")
+util.AddNetworkString("Checking")
+util.AddNetworkString("Adding")
 
 net.Receive("MoneyRemove", function(len, ply)
     local price_band = net.ReadInt(18)
@@ -152,4 +154,20 @@ net.Receive("Delete", function(len, ply)
     sql.Query("DELETE FROM bands_members WHERE title = " .. sql.SQLStr(band_title))
     
     ply:ChatPrint("Банда '" .. band_title .. "' была удалена!")
+end)
+
+net.Receive("Checking", function(len, ply)
+    local ld = sql.Query("SELECT rank FROM bands_members WHERE steamid64 = " .. sql.SQLStr(ply:SteamID64()))
+
+    net.Start("Checking")
+        net.WriteString(ld[1].rank)
+    net.Send(ply)
+end)
+
+net.Receive("Adding", function(len, ply)
+    local lde = sql.Query("SELECT rank FROM bands_members WHERE steamid64 = " .. sql.SQLStr(ply:SteamID64()))
+
+    net.Start("Adding")
+        net.WriteString(lde[1].rank)
+    net.Send(ply)
 end)

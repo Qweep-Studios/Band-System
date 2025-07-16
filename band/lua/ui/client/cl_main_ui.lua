@@ -195,15 +195,21 @@ function general_menu()
     end
 
     leavebtn.DoClick = function()
-        if pl_rank == "Глава" then
-            LocalPlayer():ChatPrint("Вы не можете покинуть банду!")
-            return 
-        end
-        local getsteamid = LocalPlayer():SteamID64()
-        net.Start("Leave")
-        net.WriteString(getsteamid)
+        net.Start("Checking")
         net.SendToServer()
-        frame:Remove()
+
+        net.Receive("Checking", function()
+            local ld = net.ReadString()
+            if ld == "Глава" then
+                LocalPlayer():ChatPrint("Вы не можете покинуть банду!")
+                return 
+            end
+            local getsteamid = LocalPlayer():SteamID64()
+            net.Start("Leave")
+            net.WriteString(getsteamid)
+            net.SendToServer()
+            frame:Remove()
+        end)
     end
 
     local deletebtn = vgui.Create('DButton', funcpanel)
@@ -224,10 +230,10 @@ function general_menu()
     end
 
     deletebtn.DoClick = function()
---[[        net.Start("CheckRank")
+        net.Start("CheckRank")
         net.SendToServer()
         net.Receive("CheckRank", function()
-            local pl_rank = net.ReadString()
+            pl_rank = net.ReadString()
             
             if pl_rank ~= "Глава" then
                 LocalPlayer():ChatPrint("Только глава банды может удалить банду!")
@@ -237,13 +243,13 @@ function general_menu()
             net.Start("BandTitle")
             net.SendToServer()
             net.Receive("BandTitle", function()
-                local band_title = net.ReadString()
+                band_title = net.ReadString()
 
                 frame:Remove()
 
             end)
             yesornomanu()
-        end) ]]-- Эта шлюха кокого то хуя вызывает ошибку!!!!
+        end)
     end
     
     local addbtn = vgui.Create('DButton', funcpanel)
@@ -262,24 +268,29 @@ function general_menu()
         surface.DrawTexturedRect(0, 0, w, h)
         draw.SimpleText('Пригласить в банду', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
-    addbtn.DoClick = function(self, w, h)
-        frame:Close()
 
-        qw.ui.player_selector("Пригласить игрока", function(selectedPlayer)
-            --[[net.Start("CheckRank")
-            net.SendToServer()
-            net.Receive("CheckRank", function()
-                rinks = net.ReadString()
+    net.Start("Adding")
+    net.SendToServer()
+
+    net.Receive("Adding", function()
+        local lde = net.ReadString()
+
+        if lde ==  "Участник"  then
+            return 
+        end
+        addbtn.DoClick = function(self, w, h)
+            frame:Close()
+
+            qw.ui.player_selector("Пригласить игрока", function(selectedPlayer)
+                if IsValid(selectedPlayer) then
+                    net.Start("Invite")
+                        net.WriteString(text)
+                        net.WriteEntity(selectedPlayer)
+                    net.SendToServer()
+                end
             end)
-            if rinks == "Глава" or rinks == "Заместитель" or rinks == "Модератор" then]]
-            if IsValid(selectedPlayer) then
-                net.Start("Invite")
-                    net.WriteString(text)
-                    net.WriteEntity(selectedPlayer)
-                net.SendToServer()
-            end
-        end)
-    end
+        end
+    end)
 end
 
 function members_menu()
@@ -552,7 +563,7 @@ function yesornomanu()
         net.WriteString(band_title)
         net.SendToServer()
                         
-        frame:Remove()
+        yesorno:Remove()
     end
 
     local no = vgui.Create('DButton', yesorno)
