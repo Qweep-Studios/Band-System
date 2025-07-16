@@ -202,6 +202,10 @@ function general_menu()
     end
 
     leavebtn.DoClick = function()
+        if pl_rank == "Глава" then
+            LocalPlayer():ChatPrint("Вы не можете покинуть банду!")
+            return 
+        end
         local getsteamid = LocalPlayer():SteamID64()
         net.Start("Leave")
         net.WriteString(getsteamid)
@@ -229,18 +233,17 @@ function general_menu()
         frame:Close()
 
         qw.ui.player_selector("Пригласить игрока", function(selectedPlayer)
-            net.Start("CheckRank")
+            --[[net.Start("CheckRank")
             net.SendToServer()
             net.Receive("CheckRank", function()
                 rinks = net.ReadString()
             end)
-            if rinks == "Глава" or rinks == "Заместитель" or rinks == "Модератор" then
-                if IsValid(selectedPlayer) then
-                    net.Start("Invite")
-                        net.WriteString(text)
-                        net.WriteEntity(selectedPlayer)
-                    net.SendToServer()
-                end
+            if rinks == "Глава" or rinks == "Заместитель" or rinks == "Модератор" then]]
+            if IsValid(selectedPlayer) then
+                net.Start("Invite")
+                    net.WriteString(text)
+                    net.WriteEntity(selectedPlayer)
+                net.SendToServer()
             end
         end)
     end
@@ -376,10 +379,6 @@ function scroll()
                     LocalPlayer():ChatPrint("Игрок успешно повышен до модератора!")
                 end
             end
-
-            if pl_rank == "Модератор" then
-                --- Тут прописать возможность добавлять в банду
-            end
         end
 
         down_button.DoClick = function()
@@ -424,22 +423,29 @@ function scroll()
             net.Receive("CheckRank", function()
                pl_rank = net.ReadString()
             end)
+
+            if ranks[i] == "Глава" then
+                return 
+            end
             if pl_rank == "Глава" then
                 if ranks[i] == "Заместитель" then
                     net.Start("Kick")
                         net.WriteString(targetid)
                     net.SendToServer()
                     LocalPlayer():ChatPrint("Игрок успешно был кикнут!")
+                    player_panel:Remove()
                 elseif ranks[i] == "Модератор" then
                     net.Start("Kick")
                         net.WriteString(targetid)
                     net.SendToServer()
                     LocalPlayer():ChatPrint("Игрок успешно был кикнут!")
+                    player_panel:Remove()
                 elseif ranks[i] == "Участник" then
                     net.Start("Kick")
                         net.WriteString(targetid)
                     net.SendToServer()
                     LocalPlayer():ChatPrint("Игрок успешно был кикнут!")
+                    player_panel:Remove()
                 end
             elseif pl_rank == "Заместитель" then
                 if ranks[i] == "Модератор" then
@@ -447,11 +453,13 @@ function scroll()
                         net.WriteString(targetid)
                     net.SendToServer()
                     LocalPlayer():ChatPrint("Игрок успешно был кикнут!")
+                    player_panel:Remove()
                 elseif ranks[i] == "Участник" then
                     net.Start("Kick")
                         net.WriteString(targetid)
                     net.SendToServer()
                     LocalPlayer():ChatPrint("Игрок успешно был кикнут!")
+                    player_panel:Remove()
                 end
             elseif pl_rank == "Модератор" then
                 if ranks[i] == "Участник" then
@@ -459,6 +467,7 @@ function scroll()
                         net.WriteString(targetid)
                     net.SendToServer()
                     LocalPlayer():ChatPrint("Игрок успешно был кикнут!")
+                    player_panel:Remove()
                 end
             end
         end

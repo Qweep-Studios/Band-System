@@ -7,8 +7,9 @@ util.AddNetworkString("Up")
 util.AddNetworkString("Down")
 util.AddNetworkString("Kick")
 util.AddNetworkString("Invite")
-util.AddNetworkString("CheckInBand")
 util.AddNetworkString("Leave")
+util.AddNetworkString("RequestAllBandStatuses")
+util.AddNetworkString("ReceiveAllBandStatuses")
 
 net.Receive("MoneyRemove", function(len, ply)
     local price_band = net.ReadInt(18)
@@ -120,20 +121,16 @@ net.Receive("CheckInBand", function(len, ply)
 end)
 ]]
 
-net.Receive("CheckInBand", function(len, ply)
-    local playerband = net.ReadPlayer()
+net.Receive("RequestAllBandStatuses", function(_, ply)
+    local bandMembers = {}
+    local query = sql.Query("SELECT steamid64 FROM bands_members") or {}
     
-    -- Запрос к базе данных
-    local check = sql.Query("SELECT rank FROM bands_members WHERE steamid64 = " .. sql.SQLStr(playerband:SteamID64()))
+    for _, row in ipairs(query) do
+        bandMembers[row.steamid64] = true
+    end
     
-    -- Определяем статус: 1 - в банде, 2 - не в банде
-    local status = (check and check[1] and check[1].rank) and 1 or 2
-    
-    print("Статус игрока " .. playerband:Nick() .. ": " .. (status == 1 and "В банде" or "Не в банде"))
-    
-    -- Отправляем результат
-    net.Start("CheckInBand")
-        net.WriteInt(status, 3)
+    net.Start("ReceiveAllBandStatuses")
+        net.WriteTable(bandMembers)
     net.Send(ply)
 end)
 
