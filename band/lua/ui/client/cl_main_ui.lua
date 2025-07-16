@@ -183,10 +183,6 @@ function general_menu()
         draw.RoundedBox(8, 0, 0, w, h, f4)
         draw.SimpleText('Действия', 'ui.font2', w * 0.5, 20, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
-    local scroll = vgui.Create('DScrollPanel', mframe)
-    scroll:SetPos(0, scrh*0.050)
-    scroll:Dock(FILL)
-    scroll:GetVBar():SetWide(0) -- убирает линию и кнопки sp
 
     local leavebtn = vgui.Create('DButton', funcpanel)
     leavebtn:SetSize(scrw*0.15, scrh*0.10)
@@ -206,7 +202,11 @@ function general_menu()
     end
 
     leavebtn.DoClick = function()
-        --
+        local getsteamid = LocalPlayer():SteamID64()
+        net.Start("Leave")
+        net.WriteString(getsteamid)
+        net.SendToServer()
+        frame:Remove()
     end
 
     local addbtn = vgui.Create('DButton', funcpanel)

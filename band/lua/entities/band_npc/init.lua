@@ -20,7 +20,7 @@ end
 
 function ENT:Use(ply)
     local steamid64 = ply:SteamID64()
-    local steamlead = sql.Query("SELECT title FROM bands_bsystem WHERE steamid_leader = " .. sql.SQLStr(steamid64))
+    local steamlead = sql.Query("SELECT title FROM bands_bsystem WHERE steamid_leader = " .. sql.SQLStr(steamid64)) -- Сделай чтобы тут проверяло не по лидеру а по тому находиться ли он в банде вообще и в какой
     if steamlead then
         net.Start("mainBandnpc")
         net.WritePlayer(ply)
