@@ -14,6 +14,12 @@ local color_bred = Color(150, 50, 50)
 local color_bgreen = Color(50, 150, 50)
 local bwhite = Color(0, 0, 255)
 local white = Color(50, 50, 150)
+local redbtn = Color(189, 60, 60)
+local greenbtn = Color(90, 191, 80)
+local gradgreenbtn = Color(48, 130, 40)
+local gradredbtn = Color(133, 33, 33)
+local redbtn_dark = Color(127, 51, 51)
+local greenbtn_dark = Color(49, 107, 44)
 local up = Material("materials/up1.png", 'smooth mips')
 local down = Material("materials/down1.png", 'smooth mips')
 local uninvate = Material("materials/uninvite.png", 'smooth mips')
@@ -55,10 +61,8 @@ function mainmenu()
 
     general_menu()
     members_menu()
-    settings_menu()
     gframe:SetVisible(true)
     mframe:SetVisible(false)
-    sframe:SetVisible(false)
 
     local closebtn = vgui.Create('DButton', frame)
     closebtn:SetSize(scrw*0.020, scrh*0.020)
@@ -68,7 +72,6 @@ function mainmenu()
         frame:Close()
         mframe:Remove()
         gframe:Remove()
-        sframe:Remove()
     end
     closebtn.Paint = function(self, w, h)
         surface.SetMaterial(close)
@@ -99,7 +102,6 @@ function mainmenu()
     end
     general.DoClick = function()
         gframe:SetVisible(true)
-        sframe:SetVisible(false)
         mframe:SetVisible(false)
     end
 
@@ -118,27 +120,7 @@ function mainmenu()
     end
     playerlist.DoClick = function()
         gframe:SetVisible(false)
-        sframe:SetVisible(false)
         mframe:SetVisible(true)
-    end
-
-    settings = vgui.Create("DButton", uppanel)
-    settings:SetSize(scrw*0.08, scrh*0.04)
-    settings:SetText("")
-    settings:SetPos(frame:GetWide() - 800, 5)
-    settings.Paint = function(self, w, h)
-        local gradient = Material("gui/center_gradient")
-
-        draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and f3 or f1)
-        surface.SetMaterial(gradient)
-        surface.SetDrawColor(f4)
-        surface.DrawTexturedRect(0, 0, w, h)
-        draw.SimpleText('Настройки', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-    end
-    settings.DoClick = function()
-        gframe:SetVisible(false)
-        sframe:SetVisible(true)
-        mframe:SetVisible(false)
     end
 end
 
@@ -161,7 +143,7 @@ function general_menu()
     member_panel.Paint = function(self, w, h)
 
         draw.RoundedBox(8, 0, 0, w, h, f4)
-        draw.SimpleText('Участников', 'ui.font2', w * 0.5, 40, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText('УЧАСТНИКОВ', 'ui.font2', w * 0.5, 40, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         draw.SimpleText(members .. '/30', 'ui.font0', w * 0.5, 70, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 
         net.Start("BandMembers")
@@ -173,15 +155,26 @@ function general_menu()
     online_panel:SetPos(scrw*0.170, scrh*0.050)
     online_panel.Paint = function(self, w, h)
         draw.RoundedBox(8, 0, 0, w, h, f4)
-        draw.SimpleText('Онлайн', 'ui.font2', w * 0.5, 40, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText('ОНЛАЙН', 'ui.font2', w * 0.5, 40, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         draw.SimpleText(online, 'ui.font0', w * 0.5, 70, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
+
+    local descrip = vgui.Create('DPanel', gframe)
+    descrip:SetSize(scrw*0.27, scrh*0.30)
+    descrip:SetPos(scrw*0.030, scrh*0.25)
+    descrip.Paint = function(self, w, h)
+        draw.RoundedBox(8, 0, 0, w, h, f4)
+        draw.SimpleText('ПОКА НЕЧЕГО НЕТ!', 'ui.font2', w * 0.5, 40, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText('Пока незнаю что сделать', 'ui.font0', w * 0.5, 70, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText('Можно сделать либо банк банды либо описание банды', 'ui.font0', w * 0.5, 100, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    end
+
     local funcpanel = vgui.Create('DPanel', gframe)
     funcpanel:SetSize(scrw*0.20, scrh*0.50)
     funcpanel:SetPos(scrw*0.370, scrh*0.050)
     funcpanel.Paint = function(self, w, h)
         draw.RoundedBox(8, 0, 0, w, h, f4)
-        draw.SimpleText('Действия', 'ui.font2', w * 0.5, 20, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText('ДЕЙСТВИЯ', 'ui.font2', w * 0.5, 20, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
 
     local leavebtn = vgui.Create('DButton', funcpanel)
@@ -213,6 +206,46 @@ function general_menu()
         frame:Remove()
     end
 
+    local deletebtn = vgui.Create('DButton', funcpanel)
+    deletebtn:SetSize(scrw*0.15, scrh*0.10)
+    deletebtn:SetPos(scrw*0.030, scrh*0.050)
+    deletebtn:SetText("")
+    deletebtn:Dock(TOP)
+    deletebtn:SetTall(42)
+    deletebtn:DockMargin(15, 6, 15, 3)
+    deletebtn.Paint = function(self, w, h)
+        local gradient = Material("gui/center_gradient")
+
+        draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and f3 or f1)
+        surface.SetMaterial(gradient)
+        surface.SetDrawColor(f4)
+        surface.DrawTexturedRect(0, 0, w, h)
+        draw.SimpleText('Удалить банду', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    end
+
+    deletebtn.DoClick = function()
+--[[        net.Start("CheckRank")
+        net.SendToServer()
+        net.Receive("CheckRank", function()
+            local pl_rank = net.ReadString()
+            
+            if pl_rank ~= "Глава" then
+                LocalPlayer():ChatPrint("Только глава банды может удалить банду!")
+                return
+            end
+            
+            net.Start("BandTitle")
+            net.SendToServer()
+            net.Receive("BandTitle", function()
+                local band_title = net.ReadString()
+
+                frame:Remove()
+
+            end)
+            yesornomanu()
+        end) ]]-- Эта шлюха кокого то хуя вызывает ошибку!!!!
+    end
+    
     local addbtn = vgui.Create('DButton', funcpanel)
     addbtn:SetSize(scrw*0.15, scrh*0.10)
     addbtn:SetPos(scrw*0.030, scrh*0.050)
@@ -311,7 +344,7 @@ function scroll()
 
         player_panel.Paint = function(_, w, h)
 
-            draw.RoundedBox(4, 0, 0, w, h, f1)
+            draw.RoundedBox(8, 0, 0, w, h, f1)
             local gradient = Material("gui/center_gradient")
             surface.SetMaterial(gradient)
             surface.SetDrawColor(27, 27, 27, 200)
@@ -379,6 +412,10 @@ function scroll()
                     LocalPlayer():ChatPrint("Игрок успешно повышен до модератора!")
                 end
             end
+            frame:Close()
+            mainmenu()
+            gframe:SetVisible(false)
+            mframe:SetVisible(true)
         end
 
         down_button.DoClick = function()
@@ -414,6 +451,10 @@ function scroll()
                     LocalPlayer():ChatPrint("Игрок успешно понижен до участника!")
                 end
             end
+            frame:Close()
+            mainmenu()
+            gframe:SetVisible(false)
+            mframe:SetVisible(true)
         end
 
         kick_button.DoClick = function()
@@ -470,16 +511,66 @@ function scroll()
                     player_panel:Remove()
                 end
             end
+            frame:Close()
+            mainmenu()
+            gframe:SetVisible(false)
+            mframe:SetVisible(true)
         end
     end
 end
 
-function settings_menu()
-    sframe = vgui.Create("DPanel", frame)
-    sframe:SetSize(scrw*0.59, scrh*0.59)
-    sframe:SetPos(scrw*0.205, scrh*0.255)
-    sframe:MakePopup()
-    sframe.Paint = function(self, w, h)
-        draw.RoundedBox(8, 0, 0, w, h, f2)
+function yesornomanu()
+    local yesorno = vgui.Create('DFrame')
+    yesorno:SetSize(scrw*0.2, scrh*0.2)
+    yesorno:SetTitle('')
+    yesorno:Center()
+    yesorno:MakePopup()
+    yesorno:ShowCloseButton(false)
+    yesorno:SetDraggable(false)
+    yesorno.Paint = function(self, w, h)
+        draw.RoundedBox(8, 0, 0, w, h, f1)
+        draw.RoundedBoxEx(8, 0, 0, w, 30, f2, true, true, false, false)
+
+        draw.SimpleText('Вы уверены что хотите удалить банду?', 'ui.font0', w * 0.5, h * 0.35, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    end
+    local yes = vgui.Create('DButton', yesorno)
+    yes:SetSize(scrw*0.07, scrh*0.030)
+    yes:Center()
+    yes:SetPos(yes:GetX() - 90, yes:GetY() + 50)
+    yes:SetText("")
+    yes.Paint = function(self, w, h)
+        local gradient = Material("gui/center_gradient")
+
+        draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and greenbtn_dark or greenbtn)
+        surface.SetMaterial(gradient)
+        surface.SetDrawColor(gradgreenbtn)
+        surface.DrawTexturedRect(0, 0, w, h)
+        draw.SimpleText('Купить', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    end
+    yes.DoClick = function()
+        net.Start("Delete")
+        net.WriteString(band_title)
+        net.SendToServer()
+                        
+        frame:Remove()
+    end
+
+    local no = vgui.Create('DButton', yesorno)
+    no:SetSize(scrw*0.07, scrh*0.030)
+    no:Center()
+    no:SetPos(no:GetX() + 90, no:GetY() + 50)
+    no:SetText("")
+    no.Paint = function(self, w, h)
+        local gradient = Material("gui/center_gradient")
+
+        draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and redbtn_dark or redbtn)
+        surface.SetMaterial(gradient)
+        surface.SetDrawColor(gradredbtn)
+        surface.DrawTexturedRect(0, 0, w, h)
+        draw.SimpleText('Отмена', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    end
+    no.DoClick = function()
+        yesorno:Remove()
+        mainmenu()
     end
 end

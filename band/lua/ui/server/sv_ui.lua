@@ -10,6 +10,7 @@ util.AddNetworkString("Invite")
 util.AddNetworkString("Leave")
 util.AddNetworkString("RequestAllBandStatuses")
 util.AddNetworkString("ReceiveAllBandStatuses")
+util.AddNetworkString("Delete")
 
 net.Receive("MoneyRemove", function(len, ply)
     local price_band = net.ReadInt(18)
@@ -137,4 +138,18 @@ end)
 net.Receive("Leave", function(len, ply)
     local localsteamid = net.ReadString()
     sql.Query("DELETE FROM bands_members WHERE steamid64 = " .. sql.SQLStr(localsteamid))
+end)
+
+net.Receive("Delete", function(len, ply)
+    local band_title = net.ReadString()
+    
+    local query = sql.Query("SELECT steamid_leader FROM bands_bsystem WHERE title = " .. sql.SQLStr(band_title))
+    if not query or query[1].steamid_leader ~= ply:SteamID64() then
+        ply:ChatPrint("Вы не являетесь главой этой банды!")
+        return
+    end
+    sql.Query("DELETE FROM bands_bsystem WHERE title = " .. sql.SQLStr(band_title))
+    sql.Query("DELETE FROM bands_members WHERE title = " .. sql.SQLStr(band_title))
+    
+    ply:ChatPrint("Банда '" .. band_title .. "' была удалена!")
 end)
