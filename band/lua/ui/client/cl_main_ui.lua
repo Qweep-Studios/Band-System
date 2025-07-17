@@ -172,7 +172,7 @@ function general_menu()
     
     local descrip = vgui.Create('DPanel', gframe)
     descrip:SetSize(scrw*0.27, scrh*0.38)
-    descrip:SetPos(scrw*0.030, scrh*0.17)
+    descrip:SetPos(frame:GetWide() * 0.05, frame:GetTall() * 0.245)
     descrip.Paint = function(self, w, h)
 
         draw.RoundedBox(8, 0, 0, w, h, f4)
@@ -185,8 +185,8 @@ function general_menu()
     end
 
     local bankpanel = vgui.Create('DPanel', descrip)
+    bankpanel:SetPos(descrip:GetWide() * 0.3, descrip:GetTall() * 0.2)
     bankpanel:SetSize(scrw*0.240, scrh*0.240)
-    bankpanel:SetPos(scrw*0.075, scrh*0.070)
     bankpanel.Paint = function(self, w, h)
         surface.SetMaterial(bank)
         surface.SetDrawColor(cb1)

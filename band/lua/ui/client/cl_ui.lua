@@ -1,5 +1,11 @@
 scrh = ScrH()
 scrw = ScrW()
+
+hook.Add( "OnScreenSizeChanged", "PrintOld", function( oldWidth, oldHeight )
+    scrw = ScrW()
+    scrh = ScrH()
+end )
+
 local band_price = 100000 --- Позже заменить на конфиг
 
 surface.CreateFont('ui.font0', {
@@ -160,11 +166,23 @@ function buy_band_ui()
                 draw.SimpleText('Купить', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
             end
             yes.DoClick = function()
-                yesorno:Remove()
-                net.Start("MoneyRemove")
-                net.WriteInt(band_price, 18)
-                net.WriteString(inputText)
+                net.Start("CheckBand")
+                    net.WriteString(inputText)
                 net.SendToServer()
+                
+                net.Receive("CheckBand", function()
+                    local tat = net.ReadString()
+                    if tat == "+" then
+                        yesorno:Remove()
+                        net.Start("MoneyRemove")
+                            net.WriteInt(band_price, 18)
+                            net.WriteString(inputText)
+                        net.SendToServer()
+                        return
+                    end
+                    LocalPlayer():ChatPrint("Банда с таким ником уже существует!")
+                    yesorno:Remove()
+                end)
             end
 
             local no = vgui.Create('DButton', yesorno)

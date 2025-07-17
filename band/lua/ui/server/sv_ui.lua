@@ -16,6 +16,7 @@ util.AddNetworkString("Adding")
 util.AddNetworkString("MoneyCheck")
 util.AddNetworkString("Invest")
 util.AddNetworkString("Withdraw")
+util.AddNetworkString("CheckBand")
 
 net.Receive("MoneyRemove", function(len, ply)
     local price_band = net.ReadInt(18)
@@ -231,4 +232,13 @@ net.Receive("Withdraw", function(len, ply)
 
     sql.Query('UPDATE bands_bsystem SET money = money - ' .. sql.SQLStr(count) .. ' WHERE title = ' .. sql.SQLStr(title_first))
     ply:addMoney(count)
+end)
+
+net.Receive("CheckBand", function(len, ply)
+    local titleinput = net.ReadString()
+    local title = sql.Query("SELECT title FROM bands_bsystem WHERE title = " .. sql.SQLStr(titleinput)) or "+"
+
+    net.Start("CheckBand")
+        net.WriteString(title[1].title)
+    net.Send(ply)
 end)
