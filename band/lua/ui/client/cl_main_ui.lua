@@ -72,7 +72,7 @@ function mainmenu()
     closebtn:SetText("")
     closebtn:SetPos(frame:GetWide() - 30, 10)
     closebtn.DoClick = function()
-        frame:Close()
+        frame:Remove()
         mframe:Remove()
         gframe:Remove()
     end
@@ -85,7 +85,7 @@ function mainmenu()
     local uppanel = vgui.Create('DPanel', frame)
     uppanel:SetSize(scrw*0.58, scrh*0.05)
     uppanel:Center()
-    uppanel:SetPos(uppanel:GetX(), uppanel:GetY() * 0.14)
+    uppanel:SetPos(uppanel:GetX(), uppanel:GetY() - 300)
     uppanel.Paint = function(self, w, h)
         draw.RoundedBox(10, 0, 0, w, h, f2)
     end
@@ -93,7 +93,7 @@ function mainmenu()
     local general = vgui.Create("DButton", uppanel)
     general:SetSize(scrw*0.08, scrh*0.04)
     general:SetText("")
-    general:SetPos(uppanel:GetWide() * 0.008, uppanel:GetTall() * 0.1)
+    general:SetPos(frame:GetWide() - 1140, 5)
     general.Paint = function(self, w, h)
         local gradient = Material("gui/center_gradient")
 
@@ -111,7 +111,7 @@ function mainmenu()
     playerlist = vgui.Create("DButton", uppanel)
     playerlist:SetSize(scrw*0.08, scrh*0.04)
     playerlist:SetText("")
-    playerlist:SetPos(uppanel:GetWide() * 0.155, uppanel:GetTall() * 0.1)
+    playerlist:SetPos(frame:GetWide() - 970, 5)
     playerlist.Paint = function(self, w, h)
         local gradient = Material("gui/center_gradient")
 
@@ -134,8 +134,8 @@ end)
 
 function general_menu()
     gframe = vgui.Create("DPanel", frame)
-    gframe:SetSize(scrw*0.59, scrh*0.59)
-    gframe:SetPos(scrw*0.205, scrh*0.255)
+    gframe:Dock(FILL)
+    gframe:DockMargin(scrw * 0.205, scrh * 0.232, scrw * -0.195, scrh * -0.145)
     gframe:MakePopup()
     gframe.Paint = function(self, w, h)
         draw.RoundedBox(8, 0, 0, w, h, f2)
@@ -166,27 +166,26 @@ function general_menu()
 
     local money = 0
 
-    net.Receive("MoneyCheck", function()
-        money = net.ReadUInt(32) or 0
-    end)
+    net.Start("Money")
+    net.SendToServer()
     
     local descrip = vgui.Create('DPanel', gframe)
     descrip:SetSize(scrw*0.27, scrh*0.38)
-    descrip:SetPos(frame:GetWide() * 0.05, frame:GetTall() * 0.245)
-    descrip.Paint = function(self, w, h)
+    descrip:SetPos(scrw*0.030, scrh*0.17)
+    net.Receive("Money", function()
+        local moneyb = net.ReadString()
+        descrip.Paint = function(self, w, h)
 
-        draw.RoundedBox(8, 0, 0, w, h, f4)
-        draw.RoundedBox(8, 0.8, 0.8, w - 0.8*2, h - 0.8*2, f5)
-        draw.SimpleText('БАНК', 'ui.font2', w * 0.5, 20, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-        draw.SimpleText('Баланс банды: ' .. money, 'ui.font0', w * 0.5, 50, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-
-        net.Start('MoneyCheck')
-        net.SendToServer()
-    end
+            draw.RoundedBox(8, 0, 0, w, h, f4)
+            draw.RoundedBox(8, 0.8, 0.8, w - 0.8*2, h - 0.8*2, f5)
+            draw.SimpleText('БАНК', 'ui.font2', w * 0.5, 20, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+            draw.SimpleText('Баланс банды: ' .. moneyb, 'ui.font0', w * 0.5, 50, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        end
+    end)
 
     local bankpanel = vgui.Create('DPanel', descrip)
-    bankpanel:SetPos(descrip:GetWide() * 0.3, descrip:GetTall() * 0.2)
     bankpanel:SetSize(scrw*0.240, scrh*0.240)
+    bankpanel:SetPos(scrw*0.075, scrh*0.070)
     bankpanel.Paint = function(self, w, h)
         surface.SetMaterial(bank)
         surface.SetDrawColor(cb1)
@@ -225,25 +224,6 @@ function general_menu()
         surface.SetDrawColor(gradredbtn)
         surface.DrawTexturedRect(0, 0, w, h)
         draw.SimpleText('Вывести', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-    end
-    
-    withdrawbtn.DoClick = function()
-        net.Start("Checking")
-        net.SendToServer()
-
-        net.Receive("Checking", function()
-            local ld = net.ReadString()
-            if ld == "Участник" then
-                LocalPlayer():ChatPrint("Вы не можете вывести деньги!")
-                return 
-            end
-            if ld == "Модератор" then
-                LocalPlayer():ChatPrint("Вы не можете вывести деньги!")
-                return 
-            end
-            frame:Remove()
-            withdrawmenu()
-        end)
     end
 
     local funcpanel = vgui.Create('DPanel', gframe)
@@ -373,8 +353,8 @@ end
 
 function members_menu()
     mframe = vgui.Create("DPanel", frame)
-    mframe:SetSize(scrw*0.59, scrh*0.59)
-    mframe:SetPos(scrw*0.205, scrh*0.255)
+    mframe:Dock(FILL)
+    mframe:DockMargin(scrw * 0.205, scrh * 0.232, scrw * -0.195, scrh * -0.145)
     mframe:MakePopup()
     mframe.Paint = function(self, w, h)
         draw.RoundedBox(8, 0, 0, w, h, f2)
@@ -382,13 +362,14 @@ function members_menu()
 
     sp = vgui.Create('DScrollPanel', mframe)
     sp:Dock(FILL)
+    sp:DockMargin(10, 10, 10, 10)
     sp:GetVBar():SetWide(0) -- убирает линию и кнопки sp
 
     net.Start("Members")
     net.SendToServer()
 
     net.Receive("Members", function()
-        allmembers = net.ReadTable() -- Получение всех участников банды
+        allmembers = net.ReadTable()
         allranks = net.ReadTable()
         ranks = {}
 
@@ -417,12 +398,12 @@ function scroll()
         player_panel:DockMargin(15, 6, 15, 3)
 
         local up_button = vgui.Create("DButton", player_panel)
-        up_button:SetPos(player_panel:GetWide() * 3.45, (player_panel:GetTall() - 32) * 0.5)
+        up_button:SetPos(player_panel:GetWide() * 3.5, (player_panel:GetTall() - 32) * 0.5)
         up_button:SetSize(32, 32)
         up_button:SetText("")
 
         local down_button = vgui.Create("DButton", player_panel)
-        down_button:SetPos(up_button:GetX() + up_button:GetWide() + 3, (player_panel:GetTall() - 32) * 0.5)
+        down_button:SetPos(player_panel:GetWide() * 3.65, (player_panel:GetTall() - 32) * 0.5)
         down_button:SetSize(32, 32)
         down_button:SetText("")
 
@@ -432,21 +413,15 @@ function scroll()
         kick_button:SetText("")
 
         player_panel.Paint = function(_, w, h)
+
             draw.RoundedBox(8, 0, 0, w, h, f1)
             local gradient = Material("gui/center_gradient")
             surface.SetMaterial(gradient)
             surface.SetDrawColor(27, 27, 27, 200)
             surface.DrawTexturedRect(0, 0, w, h)
             target_rank = ranks[i]
-            if target_rank == "Глава" then
-                rank_color = Color(211, 40, 40)
-            elseif target_rank == "Заместитель" then
-                rank_color = Color(95, 29, 29)
-            elseif target_rank == "Модератор" then
-                rank_color = Color(39, 39, 194)
-            end
-            draw.SimpleText(ply, "ui.font0", w * 0.1, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-            draw.SimpleText(target_rank, "ui.font0", w * 0.5, h * 0.5, rank_color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+            draw.SimpleText(ply, "ui.font0", w * 0.06, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+            draw.SimpleText(target_rank, "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         end
 
         up_button.Paint = function(_, w, h)
@@ -507,10 +482,8 @@ function scroll()
                     LocalPlayer():ChatPrint("Игрок успешно повышен до модератора!")
                 end
             end
-            frame:Close()
-            mainmenu()
-            gframe:SetVisible(false)
-            mframe:SetVisible(true)
+            mframe:Remove()
+            members_menu()
         end
 
         down_button.DoClick = function()
@@ -546,10 +519,8 @@ function scroll()
                     LocalPlayer():ChatPrint("Игрок успешно понижен до участника!")
                 end
             end
-            frame:Close()
-            mainmenu()
-            gframe:SetVisible(false)
-            mframe:SetVisible(true)
+            mframe:Remove()
+            members_menu()
         end
 
         kick_button.DoClick = function()
@@ -606,10 +577,8 @@ function scroll()
                     player_panel:Remove()
                 end
             end
-            frame:Close()
-            mainmenu()
-            gframe:SetVisible(false)
-            mframe:SetVisible(true)
+            mframe:Remove()
+            members_menu()
         end
     end
 end
@@ -640,7 +609,7 @@ function yesornomanu()
         surface.SetMaterial(gradient)
         surface.SetDrawColor(gradgreenbtn)
         surface.DrawTexturedRect(0, 0, w, h)
-        draw.SimpleText('Купить', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText('Подтвердить', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
     yes.DoClick = function()
         net.Start("Delete")
@@ -670,7 +639,7 @@ function yesornomanu()
     end
 end
 
-function investmenu() -- Внести
+function investmenu()
     local invest = vgui.Create('DFrame')
     invest:SetSize(scrw*0.2, scrh*0.2)
     invest:SetTitle('')
@@ -681,8 +650,6 @@ function investmenu() -- Внести
     invest.Paint = function(self, w, h)
         draw.RoundedBox(8, 0, 0, w, h, f1)
         draw.RoundedBoxEx(8, 0, 0, w, 30, f2, true, true, false, false)
-
-        draw.SimpleText('Внести средства', 'ui.font0', w * 0.5, 4, cb2, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
     end
 
     local textentry = vgui.Create('DTextEntry', invest)
@@ -690,14 +657,12 @@ function investmenu() -- Внести
     textentry:Center()
     textentry:SetTextColor(cb1)
     textentry:SetFont('ui.font0')
-    textentry:SetNumeric(true)
-    textentry:SetAllowNonAsciiCharacters(false)
     textentry.Paint = function(self, w, h)
         draw.RoundedBox(6, 0, 0, w, h, te1)
 
-        inputINVText = textentry:GetText()
+        inputmoney = textentry:GetText()
 
-        if inputINVText == "" then
+        if inputmoney == "" then
             draw.SimpleText('Введите сюда сумму...', 'ui.font1', w * 0.5, h * 0.5, cb2, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         end
 
@@ -723,106 +688,9 @@ function investmenu() -- Внести
         draw.SimpleText('Подтвердить', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
     yes.DoClick = function()
-        if inputINVText == "" then
-            return
-        end
-
-        if string.find(inputINVText, "[-.]") then
-            return
-        end
-
-        net.Start('Invest')
-        net.WriteInt(inputINVText, 32)
-        net.SendToServer()
-                        
-        invest:Remove()
-    end
-
-    local no = vgui.Create('DButton', invest)
-    no:SetSize(scrw*0.07, scrh*0.030)
-    no:Center()
-    no:SetPos(no:GetX() + 90, no:GetY() + 50)
-    no:SetText("")
-    no.Paint = function(self, w, h)
-        local gradient = Material("gui/center_gradient")
-
-        draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and redbtn_dark or redbtn)
-        surface.SetMaterial(gradient)
-        surface.SetDrawColor(gradredbtn)
-        surface.DrawTexturedRect(0, 0, w, h)
-        draw.SimpleText('Отмена', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-    end
-    no.DoClick = function()
-        invest:Remove()
-        mainmenu()
-    end
-end
-
-function withdrawmenu() -- Вывести
-    local invest = vgui.Create('DFrame')
-    invest:SetSize(scrw*0.2, scrh*0.2)
-    invest:SetTitle('')
-    invest:Center()
-    invest:MakePopup()
-    invest:ShowCloseButton(false)
-    invest:SetDraggable(false)
-    invest.Paint = function(self, w, h)
-        draw.RoundedBox(8, 0, 0, w, h, f1)
-        draw.RoundedBoxEx(8, 0, 0, w, 30, f2, true, true, false, false)
-
-        draw.SimpleText('Вывести средства', 'ui.font0', w * 0.5, 4, cb2, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
-    end
-
-    local textentry = vgui.Create('DTextEntry', invest)
-    textentry:SetSize(scrw*0.10, scrh*0.030)
-    textentry:Center()
-    textentry:SetTextColor(cb1)
-    textentry:SetFont('ui.font0')
-    textentry:SetNumeric(true)
-    textentry:SetAllowNonAsciiCharacters(false)
-    textentry.Paint = function(self, w, h)
-        draw.RoundedBox(6, 0, 0, w, h, te1)
-
-        inputINVText = textentry:GetText()
-
-        if inputINVText == "" then
-            draw.SimpleText('Введите сюда сумму...', 'ui.font1', w * 0.5, h * 0.5, cb2, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-        end
-
-        self:DrawTextEntryText(
-            self:GetTextColor(),
-            self:GetHighlightColor(),
-            self:GetCursorColor()
-        )
-    end
-
-    local yes = vgui.Create('DButton', invest)
-    yes:SetSize(scrw*0.07, scrh*0.030)
-    yes:Center()
-    yes:SetPos(yes:GetX() - 90, yes:GetY() + 50)
-    yes:SetText("")
-    yes.Paint = function(self, w, h)
-        local gradient = Material("gui/center_gradient")
-
-        draw.RoundedBox(8, 0, 0, w, h, self:IsHovered() and greenbtn_dark or greenbtn)
-        surface.SetMaterial(gradient)
-        surface.SetDrawColor(gradgreenbtn)
-        surface.DrawTexturedRect(0, 0, w, h)
-        draw.SimpleText('Подтвердить', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-    end
-    yes.DoClick = function()
-        if inputINVText == "" then
-            return
-        end
-
-        if string.find(inputINVText, "[-.]") then
-            return
-        end
-
-        net.Start('Withdraw')
-        net.WriteInt(inputINVText, 32)
-        net.SendToServer()
-                        
+        net.Start("MoneyCheck")
+            net.WriteString(inputmoney)
+        net.SendToServer()         
         invest:Remove()
     end
 

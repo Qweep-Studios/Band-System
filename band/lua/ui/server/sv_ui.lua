@@ -14,21 +14,20 @@ util.AddNetworkString("Delete")
 util.AddNetworkString("Checking")
 util.AddNetworkString("Adding")
 util.AddNetworkString("MoneyCheck")
-util.AddNetworkString("Invest")
-util.AddNetworkString("Withdraw")
-util.AddNetworkString("CheckBand")
+util.AddNetworkString("Money")
 
 net.Receive("MoneyRemove", function(len, ply)
     local price_band = net.ReadInt(18)
     local title_band = net.ReadString()
     local defoult = 5 --- Поменять на конфиг
+    local money = 0 -- Дефолт
     defoult_rank1 = "Участник"
     defoult_rank2 = "Модератор"
     defoult_rank3 = "Заместитель"
     ply:ChatPrint(ply:Nick() .. ", вы успешно создали банду!")
     local lead_steamid = ply:SteamID64()
     ply:addMoney(-price_band)
-    sql.Query("INSERT INTO bands_bsystem (title, steamid_leader, members, rank_first, rank_second, rank_third) VALUES (" .. sql.SQLStr(title_band) .. "," .. sql.SQLStr(lead_steamid) .. "," .. defoult .. "," .. sql.SQLStr(defoult_rank1) .. "," .. sql.SQLStr(defoult_rank2) .. "," .. sql.SQLStr(defoult_rank3) .. ")")
+    sql.Query("INSERT INTO bands_bsystem (title, steamid_leader, money, members, rank_first, rank_second, rank_third) VALUES (" .. sql.SQLStr(title_band) .. "," .. sql.SQLStr(lead_steamid) .. "," .. sql.SQLStr(money) .. "," .. defoult .. "," .. sql.SQLStr(defoult_rank1) .. "," .. sql.SQLStr(defoult_rank2) .. "," .. sql.SQLStr(defoult_rank3) .. ")")
     sql.Query("INSERT INTO bands_members (steamid64, title, rank) VALUES (" .. sql.SQLStr(lead_steamid) .. "," .. sql.SQLStr(title_band) .. "," .. sql.SQLStr("Глава") ..")")
 end)
 
@@ -178,67 +177,25 @@ end)
 
 net.Receive('MoneyCheck', function(len, ply)
     local ply64 = ply:SteamID64()
+    local money_update = tonumber(net.ReadString())
     local band_title = sql.Query("SELECT title FROM bands_members WHERE steamid64 = " .. sql.SQLStr(ply64))
-    
-    if not band_title or not band_title[1] then
-        net.Start('MoneyCheck')
-            net.WriteUInt(0, 32)
-        net.Send(ply)
-        return
-    end
     
     local title_first = band_title[1].title
     local moneyData = sql.Query("SELECT money FROM bands_bsystem WHERE title = " .. sql.SQLStr(title_first))
     
-    local money = 0
-    if moneyData and moneyData[1] then
-        money = tonumber(moneyData[1].money) or 0
-    end
-    
-    net.Start('MoneyCheck')
-        net.WriteUInt(money, 32)
-    net.Send(ply)
+    money = tonumber(moneyData[1].money) + tonumber(money_update)
+    print(money)
+    sql.Query("UPDATE bands_bsystem SET money = " .. sql.SQLStr(money) .. " WHERE title = " .. sql.SQLStr(title_first))
 end)
 
-net.Receive("Invest", function(len, ply)
-    local count = net.ReadInt(32)
+net.Receive("Money", function(len, ply)
     local ply64 = ply:SteamID64()
     local band_title = sql.Query("SELECT title FROM bands_members WHERE steamid64 = " .. sql.SQLStr(ply64))
     local title_first = band_title[1].title
-
-    sql.Query('UPDATE bands_bsystem SET money = money + ' .. sql.SQLStr(count) .. ' WHERE title = ' .. sql.SQLStr(title_first))
-    ply:addMoney(-count)
-end)
-
-net.Receive("Withdraw", function(len, ply)
-    local count = net.ReadInt(32)
-    local ply64 = ply:SteamID64()
-    local band_title = sql.Query("SELECT title FROM bands_members WHERE steamid64 = " .. sql.SQLStr(ply64))
-    local title_first = band_title[1].title
-
-    if not band_title or not band_title[1] then return end
-    
-    local title_first = band_title[1].title
-    
     local moneyData = sql.Query("SELECT money FROM bands_bsystem WHERE title = " .. sql.SQLStr(title_first))
-    if not moneyData or not moneyData[1] then return end
-    
-    local currentMoney = tonumber(moneyData[1].money) or 0
-    
-    if count > currentMoney then
-        ply:ChatPrint("Недостаточно средств в банке!")
-        return
-    end
+    local money = moneyData[1].money
 
-    sql.Query('UPDATE bands_bsystem SET money = money - ' .. sql.SQLStr(count) .. ' WHERE title = ' .. sql.SQLStr(title_first))
-    ply:addMoney(count)
-end)
-
-net.Receive("CheckBand", function(len, ply)
-    local titleinput = net.ReadString()
-    local title = sql.Query("SELECT title FROM bands_bsystem WHERE title = " .. sql.SQLStr(titleinput)) or "+"
-
-    net.Start("CheckBand")
-        net.WriteString(title[1].title)
+    net.Start("Money")
+        net.WriteString(money)
     net.Send(ply)
 end)
