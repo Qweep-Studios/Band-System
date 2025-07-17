@@ -82,7 +82,7 @@ function mainmenu()
     local uppanel = vgui.Create('DPanel', frame)
     uppanel:SetSize(scrw*0.58, scrh*0.05)
     uppanel:Center()
-    uppanel:SetPos(uppanel:GetX(), uppanel:GetY() - 300)
+    uppanel:SetPos(uppanel:GetX(), uppanel:GetY() * 0.14)
     uppanel.Paint = function(self, w, h)
         draw.RoundedBox(10, 0, 0, w, h, f2)
     end
@@ -90,7 +90,7 @@ function mainmenu()
     local general = vgui.Create("DButton", uppanel)
     general:SetSize(scrw*0.08, scrh*0.04)
     general:SetText("")
-    general:SetPos(frame:GetWide() - 1140, 5)
+    general:SetPos(uppanel:GetWide() * 0.008, uppanel:GetTall() * 0.1)
     general.Paint = function(self, w, h)
         local gradient = Material("gui/center_gradient")
 
@@ -108,7 +108,7 @@ function mainmenu()
     playerlist = vgui.Create("DButton", uppanel)
     playerlist:SetSize(scrw*0.08, scrh*0.04)
     playerlist:SetText("")
-    playerlist:SetPos(frame:GetWide() - 970, 5)
+    playerlist:SetPos(uppanel:GetWide() * 0.155, uppanel:GetTall() * 0.1)
     playerlist.Paint = function(self, w, h)
         local gradient = Material("gui/center_gradient")
 
@@ -339,12 +339,12 @@ function scroll()
         player_panel:DockMargin(15, 6, 15, 3)
 
         local up_button = vgui.Create("DButton", player_panel)
-        up_button:SetPos(player_panel:GetWide() * 3.5, (player_panel:GetTall() - 32) * 0.5)
+        up_button:SetPos(player_panel:GetWide() * 3.45, (player_panel:GetTall() - 32) * 0.5)
         up_button:SetSize(32, 32)
         up_button:SetText("")
 
         local down_button = vgui.Create("DButton", player_panel)
-        down_button:SetPos(player_panel:GetWide() * 3.65, (player_panel:GetTall() - 32) * 0.5)
+        down_button:SetPos(up_button:GetX() + up_button:GetWide() + 3, (player_panel:GetTall() - 32) * 0.5)
         down_button:SetSize(32, 32)
         down_button:SetText("")
 
@@ -354,15 +354,21 @@ function scroll()
         kick_button:SetText("")
 
         player_panel.Paint = function(_, w, h)
-
             draw.RoundedBox(8, 0, 0, w, h, f1)
             local gradient = Material("gui/center_gradient")
             surface.SetMaterial(gradient)
             surface.SetDrawColor(27, 27, 27, 200)
             surface.DrawTexturedRect(0, 0, w, h)
             target_rank = ranks[i]
-            draw.SimpleText(ply, "ui.font0", w * 0.06, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-            draw.SimpleText(target_rank, "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+            if target_rank == "Глава" then
+                rank_color = Color(211, 40, 40)
+            elseif target_rank == "Заместитель" then
+                rank_color = Color(95, 29, 29)
+            elseif target_rank == "Модератор" then
+                rank_color = Color(39, 39, 194)
+            end
+            draw.SimpleText(ply, "ui.font0", w * 0.1, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+            draw.SimpleText(target_rank, "ui.font0", w * 0.5, h * 0.5, rank_color, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
         end
 
         up_button.Paint = function(_, w, h)
