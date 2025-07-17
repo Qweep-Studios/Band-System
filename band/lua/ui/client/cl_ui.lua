@@ -54,6 +54,8 @@ function buy_band_ui()
 
         draw.RoundedBox(8, 0, 0, w, h, f1)
         draw.RoundedBoxEx(8, 0, 0, w, 40, f2, true, true, false, false)
+
+        draw.SimpleText('Создание банды', 'ui.font0', w * 0.5, 10, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
     end
 
     local closebtn = vgui.Create('DButton', frame)

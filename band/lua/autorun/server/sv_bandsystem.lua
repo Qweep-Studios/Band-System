@@ -2,6 +2,7 @@ resource.AddSingleFile("materials/close.png")
 resource.AddSingleFile("materials/down1.png")
 resource.AddSingleFile("materials/up1.png")
 resource.AddSingleFile("materials/uninvite.png")
+resource.AddSingleFile("materials/bank.png")
 include("ui/server/sv_ui.lua")
 AddCSLuaFile('ui/vgui/font.lua')
 
