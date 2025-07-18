@@ -15,6 +15,8 @@ util.AddNetworkString("Checking")
 util.AddNetworkString("Adding")
 util.AddNetworkString("MoneyCheck")
 util.AddNetworkString("Money")
+util.AddNetworkString("Withdraw")
+util.AddNetworkString("WithdrawRANK")
 
 net.Receive("MoneyRemove", function(len, ply)
     local price_band = net.ReadInt(18)
@@ -175,6 +177,14 @@ net.Receive("Adding", function(len, ply)
     net.Send(ply)
 end)
 
+net.Receive("WithdrawRANK", function(len, ply)
+    local ldel = sql.Query("SELECT rank FROM bands_members WHERE steamid64 = " .. sql.SQLStr(ply:SteamID64()))
+
+    net.Start("WithdrawRANK")
+        net.WriteString(ldel[1].rank)
+    net.Send(ply)
+end)
+
 net.Receive('MoneyCheck', function(len, ply)
     local ply64 = ply:SteamID64()
     local money_update = tonumber(net.ReadString())
@@ -198,4 +208,28 @@ net.Receive("Money", function(len, ply)
     net.Start("Money")
         net.WriteString(money)
     net.Send(ply)
+end)
+
+net.Receive("Withdraw", function(len, ply)
+    local count = net.ReadInt(32)
+    local ply64 = ply:SteamID64()
+    local band_title = sql.Query("SELECT title FROM bands_members WHERE steamid64 = " .. sql.SQLStr(ply64))
+    local title_first = band_title[1].title
+
+    if not band_title or not band_title[1] then return end
+    
+    local title_first = band_title[1].title
+    
+    local moneyData = sql.Query("SELECT money FROM bands_bsystem WHERE title = " .. sql.SQLStr(title_first))
+    if not moneyData or not moneyData[1] then return end
+    
+    local currentMoney = tonumber(moneyData[1].money) or 0
+    
+    if count > currentMoney then
+        ply:ChatPrint("Недостаточно средств в банке!")
+        return
+    end
+
+    sql.Query('UPDATE bands_bsystem SET money = money - ' .. sql.SQLStr(count) .. ' WHERE title = ' .. sql.SQLStr(title_first))
+    ply:addMoney(count)
 end)
