@@ -237,7 +237,6 @@ end)
 net.Receive("CheckBand", function(len, ply)
     local textd = net.ReadString()
     
-    -- Безопасный SQL-запрос с обработкой ошибок
     local result = sql.Query("SELECT title FROM bands_bsystem WHERE title = " .. sql.SQLStr(textd))
     
     local response = (result == nil or #result == 0) and "+" or "-"
