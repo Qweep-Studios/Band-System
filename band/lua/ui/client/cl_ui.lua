@@ -160,11 +160,23 @@ function buy_band_ui()
                 draw.SimpleText('Купить', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
             end
             yes.DoClick = function()
-                yesorno:Remove()
-                net.Start("MoneyRemove")
-                net.WriteInt(band_price, 18)
-                net.WriteString(inputText)
+                net.Start("CheckBand")
+                    net.WriteString(inputText)
                 net.SendToServer()
+
+                net.Receive("CheckBand", function(len, ply)
+                    local ld = net.ReadString()
+                    if ld == "+" then
+                        yesorno:Remove()
+                        net.Start("MoneyRemove")
+                        net.WriteInt(band_price, 18)
+                        net.WriteString(inputText)
+                        net.SendToServer()
+                        mainmenu()
+                    else
+                        LocalPlayer():ChatPrint("Такое название уже есть!")
+                    end
+                end)
             end
 
             local no = vgui.Create('DButton', yesorno)

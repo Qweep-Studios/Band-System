@@ -172,6 +172,13 @@ function general_menu()
     local descrip = vgui.Create('DPanel', gframe)
     descrip:SetSize(scrw*0.27, scrh*0.38)
     descrip:SetPos(scrw*0.030, scrh*0.17)
+
+    descrip.Paint = function(self, w, h)
+        draw.RoundedBox(8, 0, 0, w, h, f4)
+        draw.RoundedBox(8, 0.8, 0.8, w - 0.8*2, h - 0.8*2, f5)
+        draw.SimpleText('БАНК', 'ui.font2', w * 0.5, 20, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+    end
+
     net.Receive("Money", function()
         local moneyb = net.ReadString()
         descrip.Paint = function(self, w, h)
@@ -707,10 +714,20 @@ function investmenu()
         draw.SimpleText('Подтвердить', "ui.font0", w * 0.5, h * 0.5, cb1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
     yes.DoClick = function()
-        net.Start("MoneyCheck")
-            net.WriteString(inputmoney)
-        net.SendToServer()         
-        invest:Remove()
+        if inputmoney:match("^%d+$") then
+            
+            if tonumber(LocalPlayer():getDarkRPVar("money")) >= tonumber(inputmoney) then
+                net.Start("MoneyCheck")
+                    net.WriteString(inputmoney)
+                net.SendToServer()         
+                invest:Remove()
+                mainmenu()
+            else
+                LocalPlayer():ChatPrint("Недостаточно денег!")
+            end
+        else
+            LocalPlayer():ChatPrint("Только цифры!")
+        end
     end
 
     local no = vgui.Create('DButton', invest)
@@ -799,6 +816,7 @@ function withdrawmenu() -- Вывести
         net.SendToServer()
                         
         invest:Remove()
+        mainmenu()
     end
 
     local no = vgui.Create('DButton', invest)

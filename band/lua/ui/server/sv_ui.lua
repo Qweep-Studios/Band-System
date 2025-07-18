@@ -17,6 +17,7 @@ util.AddNetworkString("MoneyCheck")
 util.AddNetworkString("Money")
 util.AddNetworkString("Withdraw")
 util.AddNetworkString("WithdrawRANK")
+util.AddNetworkString("CheckBand")
 
 net.Receive("MoneyRemove", function(len, ply)
     local price_band = net.ReadInt(18)
@@ -194,7 +195,7 @@ net.Receive('MoneyCheck', function(len, ply)
     local moneyData = sql.Query("SELECT money FROM bands_bsystem WHERE title = " .. sql.SQLStr(title_first))
     
     money = tonumber(moneyData[1].money) + tonumber(money_update)
-    print(money)
+    ply:addMoney(-money_update)
     sql.Query("UPDATE bands_bsystem SET money = " .. sql.SQLStr(money) .. " WHERE title = " .. sql.SQLStr(title_first))
 end)
 
@@ -204,7 +205,6 @@ net.Receive("Money", function(len, ply)
     local title_first = band_title[1].title
     local moneyData = sql.Query("SELECT money FROM bands_bsystem WHERE title = " .. sql.SQLStr(title_first))
     local money = moneyData[1].money
-
     net.Start("Money")
         net.WriteString(money)
     net.Send(ply)
@@ -232,4 +232,17 @@ net.Receive("Withdraw", function(len, ply)
 
     sql.Query('UPDATE bands_bsystem SET money = money - ' .. sql.SQLStr(count) .. ' WHERE title = ' .. sql.SQLStr(title_first))
     ply:addMoney(count)
+end)
+
+net.Receive("CheckBand", function(len, ply)
+    local textd = net.ReadString()
+    
+    -- Безопасный SQL-запрос с обработкой ошибок
+    local result = sql.Query("SELECT title FROM bands_bsystem WHERE title = " .. sql.SQLStr(textd))
+    
+    local response = (result == nil or #result == 0) and "+" or "-"
+    
+    net.Start("CheckBand")
+    net.WriteString(response)
+    net.Send(ply)
 end)
