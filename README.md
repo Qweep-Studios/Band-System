@@ -1,4 +1,4 @@
-В этой системе вы можете создать свою банду с общим банком, а также изменять ранги участников.
+This system lets you create your own gang with a shared gang bank and manage member ranks.
 
 <img width="741" height="790" alt="image" src="https://github.com/user-attachments/assets/57c18435-e4b3-40bb-94ef-10d492690df7" />
 
